@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="448.0" prefWidth="732.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.compiladores.controladores.InicioController2">
+   <children>
+      <Button fx:id="botonLimpiar" layoutX="40.0" layoutY="27.0" mnemonicParsing="false" onAction="#cambiarValores" prefHeight="25.0" prefWidth="88.0" text="Limpiar" />
+      <Button layoutX="140.0" layoutY="27.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="94.0" text="Analizar" />
+      <Label layoutX="369.0" layoutY="40.0" text="Codigo Fuente A Evaluar">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <TextArea fx:id="areaTexto" layoutX="369.0" layoutY="75.0" prefHeight="364.0" prefWidth="333.0" />
+      <Label layoutX="40.0" layoutY="66.0" text="Resultado Del Analisis Lexico:">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <TableView layoutX="14.0" layoutY="88.0" prefHeight="311.0" prefWidth="346.0">
+        <columns>
+          <TableColumn prefWidth="168.33331298828125" text="Lexema" />
+          <TableColumn prefWidth="177.00003051757812" text="Descripcion" />
+        </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+      <TextField fx:id="txtPrueba" layoutX="536.0" layoutY="36.0" />
+   </children>
+</AnchorPane>
