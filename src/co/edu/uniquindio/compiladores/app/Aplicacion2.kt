@@ -5,7 +5,7 @@ import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.stage.Stage
-//EL COSTEÑO ES UNA COSA CON OJOS
+//EL COSTEÑO ES EL PAPI RICO
 class Aplicacion2 : Application ()
 {
     override fun start(primaryStage: Stage?)
