@@ -5,7 +5,7 @@ import javafx.fxml.FXML
 import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
 
-class InicioController2
+class InicioController
 {
     @FXML lateinit var areaTexto:TextArea
     @FXML lateinit var txtPrueba:TextField

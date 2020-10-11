@@ -12,14 +12,15 @@ import javafx.scene.Scene
 class Aplicacion : Application()
 {
 	//el toString de la GUI
-	override fun start(primaryStage: Stage?) {
+	override fun start(primaryStage: Stage?)
+	{
 		val loader = FXMLLoader(Aplicacion::class.java.getResource("/Inicio.fxml"))
 		val parent:Parent =loader.load()
 		
 		val scene = Scene(parent)
 		
 		primaryStage?.scene = scene
-		primaryStage?.title = "Mi compilador"
+		primaryStage?.title = "Analizador Lexico - Helix"
 		primaryStage?.show()
 	}
 	
