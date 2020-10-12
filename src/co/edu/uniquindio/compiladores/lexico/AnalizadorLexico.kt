@@ -42,6 +42,16 @@ class AnalizadorLexico ( var codigoFuente:String) {
             if ( esEntero() ) continue
             if ( esDecimal() ) continue
             if ( esIdentificador() ) continue
+            if (esOperadorLogico()) continue
+            if (esCadenaCaracteres()) continue
+            if (esCaracter()) continue
+            if (esOperadorRelacional()) continue
+            if (esOperadorAsignacion()) continue
+            if (esOperadorAditivo()) continue
+            if (esOperadorMultiplicativo()) continue
+            if (esComentarioBloque()) continue
+            if (esComentarioLinea()) continue
+            if (esComentarioLinea()) continue
             almacenarToken( lexema = ""+caracterActual, categoria = Categoria.NO_RECONOCIDO, fila = filaActual, columna = columnaActual )
             obtenerSiguienteCaracter()
         }
@@ -170,5 +180,355 @@ class AnalizadorLexico ( var codigoFuente:String) {
 
 
     }
+
+    /**
+     * Método que valida una cadena de caracteres en Helix
+     */
+
+    fun esCadenaCaracteres(): Boolean {
+
+        if (caracterActual == '|') {
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            while (caracterActual != finCodigo) {
+
+                if (caracterActual == '&') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'T' || caracterActual == 'D' || caracterActual == 'S') {
+                        //lexema += caracterActual
+                    } else {
+                        while (caracterActual != finCodigo) {
+                            if (caracterActual == '|') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                almacenarToken(lexema, Categoria.ERROR, filaInicial, columnaInicial)
+                                return true
+                            }
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                        }
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+
+                    }
+
+                }
+
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+
+                if (caracterActual == '|') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(lexema, Categoria.CADENA_CARACTERES, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+
+            hacerBT(posicionInicial, filaInicial, columnaInicial)
+            return false
+        }
+        return false
+    }
+
+    /**
+     * Método que valida un caractere en Helix
+     */
+    fun esCaracter(): Boolean {
+        if (caracterActual == '.') {
+
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == '&') {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == '.') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                almacenarToken(lexema, Categoria.CARACTER, filaInicial, columnaInicial)
+                return true
+            } else {
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+            }
+        }
+        return false
+    }
+
+    /**
+     * Método que valida un operador relacional en Helix
+     */
+    fun esOperadorRelacional(): Boolean {
+        if (caracterActual == '<' || caracterActual == '>' || caracterActual == '?' || caracterActual == '!') {
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+
+            if (caracterActual == '!') {
+                obtenerSiguienteCaracter()
+                if (caracterActual == '!') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(lexema, Categoria.OPERADOR_RELACIONAL, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == '?') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == '?') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(lexema, Categoria.OPERADOR_RELACIONAL, filaInicial, columnaInicial)
+                    return true
+                }
+                almacenarToken(lexema, Categoria.OPERADOR_RELACIONAL, filaInicial, columnaInicial)
+                return true
+            }
+            hacerBT(posicionInicial, filaInicial, columnaInicial)
+        }
+        return false
+    }
+
+    /**
+     * Método que valida un operador de asignación en Helix
+     */
+    fun esOperadorAsignacion(): Boolean {
+        if (caracterActual == '@') {
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == '+' || caracterActual == '-' || caracterActual == '*' || caracterActual == '/' || caracterActual == '%') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                almacenarToken(lexema, Categoria.OPERADOR_DE_ASIGNACION, filaInicial, columnaInicial)
+                return true
+            }
+            almacenarToken(lexema, Categoria.OPERADOR_DE_ASIGNACION, filaInicial, columnaInicial)
+            return true
+        }
+        return false
+    }
+
+    /**
+     * Método que valida un operador aditivo en Helix
+     */
+    fun esOperadorAditivo(): Boolean {
+        if (caracterActual == '<') {
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == '+' || caracterActual == '-') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == '>') {
+                    lexema += caracterActual
+                    almacenarToken(lexema, Categoria.OPERADOR_ADITIVO, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+
+            hacerBT(posicionInicial, filaInicial, columnaInicial)
+        }
+        return false
+    }
+
+    /**
+     * Método que valida un operador multiplicativo en Helix
+     */
+    fun esOperadorMultiplicativo(): Boolean {
+        if (caracterActual == '<') {
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if (caracterActual == '*' || caracterActual == '/' || caracterActual == '%') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == '>') {
+                    lexema += caracterActual
+                    almacenarToken(lexema, Categoria.OPERADOR_MULTIPLICATIVO, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+
+            hacerBT(posicionInicial, filaInicial, columnaInicial)
+        }
+        return false
+    }
+    /** Método que valida operador incremento en Helix
+     *
+     */
+    fun esOperadorIncremento():Boolean{
+        if ( caracterActual == '+'){
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            almacenarToken(lexema, Categoria.SEPARADOR, filaInicial, columnaInicial)
+            return true
+        }
+        return false
+    }
+    /** Método que valida operador decremento en Helix
+     *
+     */
+    fun esOperadorDecremento():Boolean{
+        if ( caracterActual == '-'){
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            almacenarToken(lexema, Categoria.SEPARADOR, filaInicial, columnaInicial)
+            return true
+        }
+        return false
+    }
+    /**
+     * Método que valida un operador lógico en Helix
+     */
+    fun esOperadorLogico(): Boolean {
+        if ( caracterActual == 'A' ) {
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if ( caracterActual == 'N' ) {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if ( caracterActual == 'D' ) {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(lexema, Categoria.OPERADOR_LOGICO, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+            hacerBT(posicionInicial, filaInicial, columnaInicial)
+            return false
+
+        }
+        if ( caracterActual == 'O' ) {
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if ( caracterActual == 'R' ) {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                almacenarToken(lexema, Categoria.OPERADOR_LOGICO, filaInicial, columnaInicial)
+                return true
+            }
+
+            hacerBT(posicionInicial, filaInicial, columnaInicial)
+            return false
+
+        }
+        return false
+    }
+    /**
+     * Método que valida un comentario bloque en Helix
+     */
+    fun esComentarioBloque(): Boolean {
+        if (caracterActual == '~') {
+
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            while ( caracterActual != finCodigo ) {
+
+                if ( caracterActual == '~'){
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(lexema, Categoria.COMENRARIO_BLOQUE, filaInicial, columnaInicial)
+                    return true
+                }
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+            }
+            almacenarToken(lexema, Categoria.ERROR, filaInicial, columnaInicial)
+            return false
+
+        }
+        return false
+    }
+
+
+    /**
+     * Método que valida un comentario línea en Helix
+     */
+    fun esComentarioLinea(): Boolean {
+        if (caracterActual == '¬') {
+
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            while ( caracterActual != finCodigo && filaInicial == filaActual) {
+
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+            }
+            if ( caracterActual != finCodigo ){
+                lexema = lexema.substring(0, lexema.length-1)
+            }
+            almacenarToken(lexema, Categoria.COMENTARIO_LINEA, filaInicial, columnaInicial)
+            return true
+        }
+        return false
+    }
+
 
 }
