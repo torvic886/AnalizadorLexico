@@ -1,7 +1,11 @@
 package co.edu.uniquindio.compiladores.lexico
 
 /**
- *
+ * Lenguaje de programación Helix
+ * Realizado por: Víctor Gutiérrez Vásquez, Mauricio Tiburcio Tabares Marín, William Castañeda López
+ * Fecha de entrega: 16-10-2020
+ * Versión en desarrollo: 1.0
+ * Profesor: Carlos Andres Flores V.
  */
 class AnalizadorLexico ( var codigoFuente:String)
 {
@@ -35,14 +39,16 @@ class AnalizadorLexico ( var codigoFuente:String)
      * Método que permite validar los token por categorías, una por una hasta hallar la indicada
      */
     fun analizar(){
-        while ( caracterActual != finCodigo ){
-            if ( caracterActual == ' ' ){
+        while (caracterActual != finCodigo) {
+            while (caracterActual == ' ') {
                 obtenerSiguienteCaracter()
             }
 
-            if ( esEntero() ) continue
-            if ( esDecimal() ) continue
-            if ( esIdentificador() ) continue
+            if (esEntero()) continue
+            if (esEnteroCorto()) continue
+            if (esEnteroLargo()) continue
+            if (esDecimal()) continue
+            if (esIdentificador()) continue
             if (esOperadorLogico()) continue
             if (esCadenaCaracteres()) continue
             if (esCaracter()) continue
@@ -52,27 +58,30 @@ class AnalizadorLexico ( var codigoFuente:String)
             if (esOperadorMultiplicativo()) continue
             if (esComentarioBloque()) continue
             if (esComentarioLinea()) continue
-            if (esComentarioLinea()) continue
             //if (esLlaveAbrir()) continue
             //if (esLlaveCerrar()) continue
             if (esOperadorInicial()) continue
             if (esOperadorTerminal()) continue
+            if (esComentarioLinea()) continue
             if (esSeparador()) continue
             if ( esParentesisAbrir()) continue
             if ( esParentesisCerrar()) continue
             if ( esFinSentencia() ) continue
-            almacenarToken( lexema = ""+caracterActual, categoria = Categoria.NO_RECONOCIDO, fila = filaActual, columna = columnaActual )
+
+            almacenarToken(lexema = "" + caracterActual, categoria = Categoria.NO_RECONOCIDO, fila = filaActual, columna = columnaActual)
             obtenerSiguienteCaracter()
+
         }
 
     }
 
+
     /**
      * Método que valida un número entero en el lenguaje Helix
      */
-    fun esEntero():Boolean{
+    fun esEntero(): Boolean {
         //En Helix, los decimales se definen con un '$' al principio
-        if ( caracterActual == '$'){
+        if (caracterActual == '$') {
             var lexema = ""
             var filaInicial = filaActual  // se guarda la fila desde la cual inicia
             var columnaInicial = columnaActual  // se guarda la columna desde la cual inició
@@ -80,21 +89,133 @@ class AnalizadorLexico ( var codigoFuente:String)
             lexema += caracterActual  // se almacena el caracter que satisface los requisitos
             obtenerSiguienteCaracter()
             //verifica si el siguiente caracter es un dígito
-            if (caracterActual.isDigit()){
+            if (caracterActual.isDigit()) {
 
                 // verifica si sigue un dígito o una secuencia de dígitos
-                while ( caracterActual.isDigit() ){
+                while (caracterActual.isDigit()) {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                }
+                // en caso de que el caracter siguiente sea un ',', se debe deshacer el proceso, puesto que probablemente se trate de un decimal
+                if (caracterActual == ',' || caracterActual == '_') {
+                    if (caracterActual == ',') {
+
+                        if (posicionActual < codigoFuente.length - 1) {
+                            if (!codigoFuente[posicionActual + 1].isDigit()) {
+                                //posicionActual = posicionActual-1
+                                //columnaActual = columnaActual-1
+                                //lexema = lexema.substring( 0, lexema.length- )
+                                almacenarToken(lexema, Categoria.ENTERO, filaInicial, columnaInicial)
+                                return true
+                            }
+                        }
+                    }
+
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)  // se busca descartar la posibilidad de que sea un entero, para ello se deben partir desde el punto inicial, para validar otra cat
+                    return false
+                }
+                almacenarToken(lexema, Categoria.ENTERO, filaInicial, columnaInicial)
+                return true
+            }
+        }
+        //Si el primer caracter no es un '$', entonces no es un entero
+        return false
+    }
+
+    /**
+     * Método que valida un número entero en el lenguaje Helix
+     */
+    fun esEnteroCorto(): Boolean {
+        //En Helix, los decimales se definen con un '$' al principio
+        if (caracterActual == '$') {
+            var lexema = ""
+            var filaInicial = filaActual  // se guarda la fila desde la cual inicia
+            var columnaInicial = columnaActual  // se guarda la columna desde la cual inició
+            var posicionInicial = posicionActual // se guarda la posición en la cual inició
+            lexema += caracterActual  // se almacena el caracter que satisface los requisitos
+            obtenerSiguienteCaracter()
+            //verifica si el siguiente caracter es un dígito
+            if (caracterActual.isDigit()) {
+
+                // verifica si sigue un dígito o una secuencia de dígitos
+                while (caracterActual.isDigit()) {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
                 }
                 // en caso de que el caracter siguiente sea un '.', se debe deshacer el proceso, puesto que probablemente se trate de un decimal
-                if ( caracterActual == ',')
-                {
+                if (caracterActual == ',') {
                     hacerBT(posicionInicial, filaInicial, columnaInicial)  // se busca descartar la posibilidad de que sea un entero, para ello se deben partir desde el punto inicial, para validar otra cat
                     return false
                 }
-                almacenarToken( lexema, Categoria.ENTERO, filaInicial, columnaInicial )
-                return true
+                if (caracterActual == '_') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'c') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        almacenarToken(lexema, Categoria.ENTERO_CORTO, filaInicial, columnaInicial)
+                        return true
+                    } else {
+
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)  // se busca descartar la posibilidad de que sea un entero, para ello se deben partir desde el punto inicial, para validar otra cat
+                        return false
+                    }
+
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)  // se busca descartar la posibilidad de que sea un entero, para ello se deben partir desde el punto inicial, para validar otra cat
+                    return false
+                }
+
+            }
+        }
+        //Si el primer caracter no es un '$', entonces no es un entero
+        return false
+    }
+
+    /**
+     * Método que valida un entero corto
+     */
+    fun esEnteroLargo(): Boolean {
+        //En Helix, los decimales se definen con un '$' al principio
+        if (caracterActual == '$') {
+            var lexema = ""
+            var filaInicial = filaActual  // se guarda la fila desde la cual inicia
+            var columnaInicial = columnaActual  // se guarda la columna desde la cual inició
+            var posicionInicial = posicionActual // se guarda la posición en la cual inició
+            lexema += caracterActual  // se almacena el caracter que satisface los requisitos
+            obtenerSiguienteCaracter()
+            //verifica si el siguiente caracter es un dígito
+            if (caracterActual.isDigit()) {
+
+                // verifica si sigue un dígito o una secuencia de dígitos
+                while (caracterActual.isDigit()) {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                }
+                // en caso de que el caracter siguiente sea un '.', se debe deshacer el proceso, puesto que probablemente se trate de un decimal
+                if (caracterActual == ',') {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)  // se busca descartar la posibilidad de que sea un entero, para ello se deben partir desde el punto inicial, para validar otra cat
+                    return false
+                }
+                if (caracterActual == '_') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'l') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        almacenarToken(lexema, Categoria.ENTERO_LARGO, filaInicial, columnaInicial)
+                        return true
+                    } else {
+
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)  // se busca descartar la posibilidad de que sea un entero, para ello se deben partir desde el punto inicial, para validar otra cat
+                        return false
+                    }
+
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)  // se busca descartar la posibilidad de que sea un entero, para ello se deben partir desde el punto inicial, para validar otra cat
+                    return false
+                }
+
             }
         }
         //Si el primer caracter no es un '$', entonces no es un entero
@@ -104,43 +225,89 @@ class AnalizadorLexico ( var codigoFuente:String)
     /**
      * Método que valida un número decimal en Helix
      */
-    fun esDecimal():Boolean{
+    fun esDecimal(): Boolean {
         //En Helix, los decimales se definen con un '$' al principio
-        if ( caracterActual == '$'){
+        if (caracterActual == '$') {
             var lexema = ""
             var filaInicial = filaActual
             var columnaInicial = columnaActual
             var posicionInicial = posicionActual
             lexema += caracterActual
             obtenerSiguienteCaracter()
-            if (caracterActual.isDigit()){
+            if (caracterActual.isDigit()) {
 
-                while ( caracterActual.isDigit() ){
+                while (caracterActual.isDigit()) {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
                 }
                 //En Helix, los decimales en vez de puntos llevan una ','
-                if ( caracterActual == ','){
+                if (caracterActual == ',') {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
 
                     //Verifica si después de la coma sigue un dígito
-                    if( caracterActual.isDigit() ) {
-                        while ( caracterActual.isDigit() ){
+                    if (caracterActual.isDigit()) {
+                        while (caracterActual.isDigit()) {
                             lexema += caracterActual
                             obtenerSiguienteCaracter()
                         }
-                    } else{
-                        //Si lo que sigue no es un dígito, por defecto agregará un 0, esto es, para que en vez de '12,' quede '12,0'
-                        lexema += '0'
+                        if (caracterActual != '_') {
+                            almacenarToken(lexema, Categoria.DECIMAL, filaInicial, columnaInicial)
+                            return true
+                        }
                     }
-
-                } else{
-                    hacerBT( posicionInicial, filaInicial, columnaInicial )
-                    return false
                 }
-                almacenarToken( lexema, Categoria.DECIMAL, filaInicial, columnaInicial )
-                return true
+            }
+            hacerBT(posicionInicial, filaInicial, columnaInicial)
+            return false
+        }
+        //Si el primer caracter no es un '$', entonces no es un decimal
+        return false
+    }
+
+    /**
+     * Método que valida un número decimal corto en Helix
+     */
+    fun esDecimalCorto(): Boolean {
+        //En Helix, los decimales se definen con un '$' al principio
+        if (caracterActual == '$') {
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual.isDigit()) {
+
+                while (caracterActual.isDigit()) {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                }
+                //En Helix, los decimales en vez de puntos llevan una ','
+                if (caracterActual == ',') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    //Verifica si después de la coma sigue un dígito
+                    if (caracterActual.isDigit()) {
+                        while (caracterActual.isDigit()) {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                        }
+                        if (caracterActual == '_') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'c') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                almacenarToken(lexema, Categoria.DECIMAL_CORTO, filaInicial, columnaInicial)
+                                return true
+                            }
+                        }
+                    }
+                }
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
             }
         }
         //Si el primer caracter no es un '$', entonces no es un decimal
@@ -148,26 +315,145 @@ class AnalizadorLexico ( var codigoFuente:String)
     }
 
     /**
-     * Método que valida un identificador en Helix
+     * Método que valida un número decimal largo en Helix
      */
-    fun esIdentificador():Boolean{
-
-        if (caracterActual.isLetter() || caracterActual == '#' ){
+    fun esDecimalLargo(): Boolean {
+        //En Helix, los decimales se definen con un '$' al principio
+        if (caracterActual == '$') {
             var lexema = ""
             var filaInicial = filaActual
             var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
             lexema += caracterActual
             obtenerSiguienteCaracter()
-            while ( caracterActual.isLetter() || caracterActual == '#' || caracterActual.isDigit() ){
+            if (caracterActual.isDigit()) {
+
+                while (caracterActual.isDigit()) {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                }
+                //En Helix, los decimales en vez de puntos llevan una ','
+                if (caracterActual == ',') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    //Verifica si después de la coma sigue un dígito
+                    if (caracterActual.isDigit()) {
+                        while (caracterActual.isDigit()) {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                        }
+                        if (caracterActual == '_') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'l') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                almacenarToken(lexema, Categoria.DECIMAL_LARGO, filaInicial, columnaInicial)
+                                return true
+                            }
+                        }
+                    }
+                }
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                return false
+            }
+        }
+        //Si el primer caracter no es un '$', entonces no es un decimal
+        return false
+    }
+
+    /**
+     * Método que valida un identificador en Helix, como máximo debe tener 10 caracteres
+     */
+    fun esIdentificador(): Boolean {
+        var lexema = ""
+        var filaInicial = filaActual
+        var columnaInicial = columnaActual
+        var posicionInicial = posicionActual
+
+        if ( caracterActual == 'A' ) {
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if ( caracterActual == 'N' ) {
+
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+
+                if ( caracterActual == 'D' ) {
+
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    if ( caracterActual != finCodigo ){
+
+                        if ( caracterActual == '#'  || caracterActual.isLetter() || caracterActual.isDigit())
+                        {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        } else{
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
+                    } else{
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else{
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                }
+            }
+        }
+        if ( caracterActual == 'O' ) {
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if ( caracterActual == 'R' ) {
+
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+
+                if ( caracterActual != finCodigo ){
+
+                    if ( caracterActual == '#'  || caracterActual.isLetter() || caracterActual.isDigit())
+                    {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    } else{
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                } else{
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            } else{
+                hacerBT(posicionInicial, filaInicial, columnaInicial)
+            }
+        }
+        lexema = ""
+        // En Helix, cada identificador debe empezar con una letra o un '#'
+        if (caracterActual.isLetter() || caracterActual == '#') {
+            lexema = ""
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            // Dado que solo se permite que tenga hasta 10 caracteres, se especifica la condición lexema.length <= 10
+            while (lexema.length <= 10 && (caracterActual.isLetter() || caracterActual == '#' || caracterActual.isDigit())) {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
             }
-            almacenarToken( lexema, Categoria.IDENTIFICADOR, filaInicial, columnaInicial )
+            almacenarToken(lexema, Categoria.IDENTIFICADOR, filaInicial, columnaInicial)
             return true
+
         }
         return false
     }
 
+    /**
+     * Método que valida una cadena de caracteres en Helix
+     */
     /**
      * Método que consulta, si es posible, el caracter siguiente en la cadena principal
      */
@@ -360,6 +646,7 @@ class AnalizadorLexico ( var codigoFuente:String)
                 obtenerSiguienteCaracter()
                 if (caracterActual == '>') {
                     lexema += caracterActual
+                    obtenerSiguienteCaracter()
                     almacenarToken(lexema, Categoria.OPERADOR_ADITIVO, filaInicial, columnaInicial)
                     return true
                 }
