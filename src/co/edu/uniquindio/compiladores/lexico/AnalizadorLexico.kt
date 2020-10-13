@@ -515,7 +515,8 @@ class AnalizadorLexico ( var codigoFuente:String)
     /**
      * Método que valida un comentario línea en Helix
      */
-    fun esComentarioLinea(): Boolean {
+    fun esComentarioLinea(): Boolean
+    {
         if (caracterActual == '¬') {
 
             var lexema = ""
