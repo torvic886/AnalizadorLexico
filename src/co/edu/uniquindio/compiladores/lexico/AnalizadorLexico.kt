@@ -3,7 +3,8 @@ package co.edu.uniquindio.compiladores.lexico
 /**
  *
  */
-class AnalizadorLexico ( var codigoFuente:String) {
+class AnalizadorLexico ( var codigoFuente:String)
+{
 
     var caracterActual = codigoFuente[0]  //se captura el primer caracter de la cadena que entra por parámetro
     var listaTokens = ArrayList<Token>()  //se declara una lista para almacenar los tokens validados
@@ -52,6 +53,14 @@ class AnalizadorLexico ( var codigoFuente:String) {
             if (esComentarioBloque()) continue
             if (esComentarioLinea()) continue
             if (esComentarioLinea()) continue
+            //if (esLlaveAbrir()) continue
+            //if (esLlaveCerrar()) continue
+            if (esOperadorInicial()) continue
+            if (esOperadorTerminal()) continue
+            if (esSeparador()) continue
+            if ( esParentesisAbrir()) continue
+            if ( esParentesisCerrar()) continue
+            if ( esFinSentencia() ) continue
             almacenarToken( lexema = ""+caracterActual, categoria = Categoria.NO_RECONOCIDO, fila = filaActual, columna = columnaActual )
             obtenerSiguienteCaracter()
         }
@@ -530,5 +539,185 @@ class AnalizadorLexico ( var codigoFuente:String) {
         return false
     }
 
+    /**
+     * Método que valida llave abrir
+     */
+    fun esOperadorInicial(): Boolean {
+
+        if ( caracterActual == '-'){
+
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if ( caracterActual == '-' ){
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+
+                if ( caracterActual == '>'){
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken( lexema, Categoria.OPERADOR_TERMINAL, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+            hacerBT(posicionInicial, filaInicial, columnaInicial)
+        }
+
+        return false
+
+    }
+    /**
+     * Método que valida llave cerrar
+     */
+    fun esOperadorTerminal(): Boolean {
+        if ( caracterActual == '<'){
+
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            if ( caracterActual == '-' ){
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+
+                if ( caracterActual == '-'){
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken( lexema, Categoria.OPERADOR_TERMINAL, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+            hacerBT(posicionInicial, filaInicial, columnaInicial)
+        }
+
+        return false
+
+
+    }
+    /** Método que valida corchete abrir
+     *
+     */
+    fun esCorcheteAbrir():Boolean{
+        if ( caracterActual == '{'){
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            almacenarToken(lexema, Categoria.CORCHETE_ABRIR, filaInicial, columnaInicial)
+            return true
+        }
+        return false
+    }
+    /** Método que valida corchete abrir
+     *
+     */
+    fun esCorcheteCerrar():Boolean{
+        if ( caracterActual == '}'){
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            almacenarToken(lexema, Categoria.CORCHETE_CERRAR, filaInicial, columnaInicial)
+            return true
+        }
+        return false
+    }
+    /** Método que valida paréntesis de abrir
+     *
+     */
+    fun esParentesisAbrir():Boolean{
+        if ( caracterActual == '['){
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            almacenarToken(lexema, Categoria.PARENTESIS_ABRIR, filaInicial, columnaInicial)
+            return true
+        }
+        return false
+    }
+    /** Método que valida paréntesis de abrir
+     *
+     */
+    fun esParentesisCerrar():Boolean{
+        if ( caracterActual == ']'){
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            almacenarToken(lexema, Categoria.PARENTESIS_CERRAR, filaInicial, columnaInicial)
+            return true
+        }
+        return false
+    }
+    /** Método que valida separador en Helix
+     *
+     */
+    fun esSeparador():Boolean{
+        if ( caracterActual == ';'){
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            almacenarToken(lexema, Categoria.SEPARADOR, filaInicial, columnaInicial)
+            return true
+        }
+        return false
+    }
+    /** Método que valida fin de sentencia en Helix
+     *
+     */
+    fun esFinSentencia():Boolean{
+        if ( caracterActual == '_'){
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            almacenarToken(lexema, Categoria.FIN_SENTENCIA, filaInicial, columnaInicial)
+            return true
+        }
+        return false
+    }
 
 }
