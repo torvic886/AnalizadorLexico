@@ -48,6 +48,8 @@ class AnalizadorLexico ( var codigoFuente:String)
             if (esEnteroCorto()) continue
             if (esEnteroLargo()) continue
             if (esDecimal()) continue
+            if (esDecimalCorto()) continue
+            if (esDecimalLargo()) continue
             if (esIdentificador()) continue
             if (esOperadorLogico()) continue
             if (esCadenaCaracteres()) continue
@@ -56,6 +58,8 @@ class AnalizadorLexico ( var codigoFuente:String)
             if (esOperadorAsignacion()) continue
             if (esOperadorAditivo()) continue
             if (esOperadorMultiplicativo()) continue
+            if (esOperadorIncremento()) continue
+            if (esOperadorDecremento()) continue
             if (esComentarioBloque()) continue
             if (esComentarioLinea()) continue
             //if (esLlaveAbrir()) continue
@@ -64,9 +68,13 @@ class AnalizadorLexico ( var codigoFuente:String)
             if (esOperadorTerminal()) continue
             if (esComentarioLinea()) continue
             if (esSeparador()) continue
-            if ( esParentesisAbrir()) continue
-            if ( esParentesisCerrar()) continue
-            if ( esFinSentencia() ) continue
+            if (esParentesisAbrir()) continue
+            if (esParentesisCerrar()) continue
+            if (esFinSentencia()) continue
+            if (esCorcheteAbrir()) continue
+            if (esCorcheteCerrar()) continue
+            //if (esPalabraReservada()) continue
+
 
             almacenarToken(lexema = "" + caracterActual, categoria = Categoria.NO_RECONOCIDO, fila = filaActual, columna = columnaActual)
             obtenerSiguienteCaracter()
@@ -110,7 +118,6 @@ class AnalizadorLexico ( var codigoFuente:String)
                             }
                         }
                     }
-
                     hacerBT(posicionInicial, filaInicial, columnaInicial)  // se busca descartar la posibilidad de que sea un entero, para ello se deben partir desde el punto inicial, para validar otra cat
                     return false
                 }
@@ -454,32 +461,6 @@ class AnalizadorLexico ( var codigoFuente:String)
     /**
      * Método que valida una cadena de caracteres en Helix
      */
-    /**
-     * Método que consulta, si es posible, el caracter siguiente en la cadena principal
-     */
-    fun obtenerSiguienteCaracter(){
-        // verifica si se trata del último caracter
-        if ( posicionActual == codigoFuente.length-1 ){
-            caracterActual = finCodigo
-        } else{
-            // verifica si se trata de un salto de línea
-            if ( caracterActual == '?' || codigoFuente[posicionActual+1] == 'S'){
-                filaActual++
-                columnaActual = 0
-            } else{
-                columnaActual++
-            }
-            posicionActual++
-            caracterActual = codigoFuente[posicionActual]
-        }
-
-
-    }
-
-    /**
-     * Método que valida una cadena de caracteres en Helix
-     */
-
     fun esCadenaCaracteres(): Boolean {
 
         if (caracterActual == '|') {
@@ -674,6 +655,7 @@ class AnalizadorLexico ( var codigoFuente:String)
                 obtenerSiguienteCaracter()
                 if (caracterActual == '>') {
                     lexema += caracterActual
+                    obtenerSiguienteCaracter()
                     almacenarToken(lexema, Categoria.OPERADOR_MULTIPLICATIVO, filaInicial, columnaInicial)
                     return true
                 }
@@ -797,7 +779,6 @@ class AnalizadorLexico ( var codigoFuente:String)
         }
         return false
     }
-
 
     /**
      * Método que valida un comentario línea en Helix
@@ -1007,5 +988,25 @@ class AnalizadorLexico ( var codigoFuente:String)
         }
         return false
     }
+    /**
+     * Método que consulta, si es posible, el caracter siguiente en la cadena principal
+     */
+    fun obtenerSiguienteCaracter(){
+        // verifica si se trata del último caracter
+        if ( posicionActual == codigoFuente.length-1 ){
+            caracterActual = finCodigo
+        } else{
+            // verifica si se trata de un salto de línea
+            if ( caracterActual == '?' || codigoFuente[posicionActual+1] == 'S'){
+                filaActual++
+                columnaActual = 0
+            } else{
+                columnaActual++
+            }
+            posicionActual++
+            caracterActual = codigoFuente[posicionActual]
+        }
+    }
+
 //mauricio
 }
