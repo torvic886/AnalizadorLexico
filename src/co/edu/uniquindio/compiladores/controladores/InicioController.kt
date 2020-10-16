@@ -9,11 +9,11 @@ import javafx.fxml.Initializable
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.control.TextArea
-import javafx.scene.control.TextField
 import javafx.scene.control.cell.PropertyValueFactory
 import java.net.URL
 import java.util.*
 import javax.swing.JOptionPane
+
 
 class InicioController : Initializable
 {
@@ -61,6 +61,19 @@ class InicioController : Initializable
                     "Mensaje Informativo", JOptionPane.INFORMATION_MESSAGE);
         }
 
+    }
+
+    /** Método que permite cargar el archuvo pdf que contiene la información base del lenguaje Helix
+     *
+     */
+    @FXML
+    fun generarPDF( e:ActionEvent)
+    {
+        try {
+            val p = Runtime.getRuntime().exec("rundll32 SHELL32.DLL,ShellExec_RunDLL " + "\\resources\\pdf\\Lenguaje Helix.pdf")
+        } catch (evvv: Exception) {
+            JOptionPane.showMessageDialog(null, "No se puede abrir el archivo de ayuda, probablemente fue borrado", "ERROR", JOptionPane.ERROR_MESSAGE)
+        }
     }
 
 

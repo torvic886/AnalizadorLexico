@@ -14,6 +14,7 @@ class Aplicacion : Application()
 	//el toString de la GUI
 	override fun start(primaryStage: Stage?)
 	{
+
 		val loader = FXMLLoader(Aplicacion::class.java.getResource("/Inicio.fxml"))
 		val parent:Parent =loader.load()
 		
@@ -29,6 +30,7 @@ class Aplicacion : Application()
 		@JvmStatic
 		fun main( args: Array<String>){
 			launch(Aplicacion::class.java)
+
 		}
 	}
 }//FIN DE LA CLASE

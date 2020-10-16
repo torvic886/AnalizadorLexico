@@ -51,5 +51,6 @@
             <Image url="@Img/MarcaRegistrada.png" />
          </image>
       </ImageView>
+      <Button id="btnAyuda" layoutX="351.0" layoutY="27.0" mnemonicParsing="false" onAction="#generarPDF" text="Ayuda" textFill="#2242e0" />
     </children>
 </AnchorPane>
