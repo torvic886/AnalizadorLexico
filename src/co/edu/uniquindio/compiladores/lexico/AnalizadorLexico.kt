@@ -988,6 +988,729 @@ class AnalizadorLexico ( var codigoFuente:String)
         }
         return false
     }
+
+    /**
+     * Método que valida una palabra reservada en Helix
+     * @Return true: si es una pal reservada, false: si no lo es
+     */
+    fun esPalabraReservada(): Boolean {
+        var lexema = ""  // variable que va a almacenar la palabra reconocida
+        var filaInicial = filaActual  // se captura la fila desde la cual inicia
+        var columnaInicial = columnaActual  // se captura la columna desde la cual inicia
+        var posicionInicial = posicionActual  // se captura la posición desde la cual inicia
+
+        // Pal reservada 'extensive' <--> 'public'
+        if (caracterActual == 'e') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'x') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 't') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'e') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'n') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 's') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                if (caracterActual == 'i') {
+                                    lexema += caracterActual
+                                    obtenerSiguienteCaracter()
+                                    if (caracterActual == 'v') {
+                                        lexema += caracterActual
+                                        obtenerSiguienteCaracter()
+                                        if (caracterActual == 'e') {
+                                            lexema += caracterActual
+                                            obtenerSiguienteCaracter()
+
+                                            almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                            return true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'limited' <--> 'private'
+        if (caracterActual == 'l') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'i') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'm') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'i') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 't') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'e') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                if (caracterActual == 'd') {
+                                    lexema += caracterActual
+                                    obtenerSiguienteCaracter()
+
+                                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                    return true
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Pal reservada 'privileged' <--> 'protected'
+        if (caracterActual == 'p') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'r') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'i') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'v') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'i') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'l') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                if (caracterActual == 'e') {
+                                    lexema += caracterActual
+                                    obtenerSiguienteCaracter()
+                                    if (caracterActual == 'g') {
+                                        lexema += caracterActual
+                                        obtenerSiguienteCaracter()
+                                        if (caracterActual == 'e') {
+                                            lexema += caracterActual
+                                            obtenerSiguienteCaracter()
+                                            if (caracterActual == 'd') {
+                                                lexema += caracterActual
+                                                obtenerSiguienteCaracter()
+
+                                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                                return true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'to' <--> 'for'
+        if (caracterActual == 't') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'o') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+
+                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                return true
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'whereas' <--> 'while'
+        if (caracterActual == 'w') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'h') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'e') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'r') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'e') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'a') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                if (caracterActual == 's') {
+                                    lexema += caracterActual
+                                    obtenerSiguienteCaracter()
+
+                                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                    return true
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'change' <--> 'switch'
+        if (caracterActual == 'c') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'h') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'a') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'n') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'g') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'e') {
+
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+
+                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                return true
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'Entero' <--> 'int'
+        if (caracterActual == 'E') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'n') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 't') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'e') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'r') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'o') {
+
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+
+                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                return true
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'cad' <--> 'String'
+        if (caracterActual == 'c') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'a') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'd') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'dec' <--> 'decimal'
+        if (caracterActual == 'd') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'e') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'c') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'atm' <--> 'char'
+        if (caracterActual == 'a') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 't') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'm') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+        }
+
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'centi' <--> 'boolean'
+        if (caracterActual == 'c') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'e') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'n') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'e') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    }
+
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'check' <--> 'if'
+        if (caracterActual == 'c') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'h') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'e') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'c') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'k') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+
+                            almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                            return true
+                        }
+                    }
+
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'insi' <--> 'else'
+        if (caracterActual == 'i') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'n') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 's') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'i') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    }
+
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'msg' (message) <--> 'print'
+        if (caracterActual == 'm') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 's') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'g') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'dev' <--> 'return'
+        if (caracterActual == 'd') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'e') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'v') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'make' <--> 'do'
+        if (caracterActual == 'm') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'a') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'k') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'e') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    }
+
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'rup' <--> 'break'
+        if (caracterActual == 'r') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'u') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'p') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'opt' <--> 'case'
+        if (caracterActual == 'o') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'p') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 't') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'enumtn' <--> 'enumeration'
+        if (caracterActual == 'e') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'n') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'u') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'm') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 't') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'n') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+
+                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                return true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'treat' <--> 'try'
+        if (caracterActual == 't') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'r') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'e') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'a') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 't') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+
+                            almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                            return true
+
+                        }
+                    }
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'cap' <--> 'catch'
+        if (caracterActual == 'c') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'a') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'p') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'impt' <--> 'import'
+        if (caracterActual == 'i') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'm') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'p') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 't') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    }
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'metd' <--> definición de un método/función
+        if (caracterActual == 'm') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'e') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 't') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'd') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    }
+                }
+            }
+        }
+        // dado que no se halló palabras reservadas, se reinician las variables globales, para validar otra categoría; y se retorna false
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        return false
+    }
+
+
+
     /**
      * Método que consulta, si es posible, el caracter siguiente en la cadena principal
      */
