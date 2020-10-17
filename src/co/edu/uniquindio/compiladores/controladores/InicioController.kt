@@ -10,6 +10,9 @@ import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.control.TextArea
 import javafx.scene.control.cell.PropertyValueFactory
+import java.awt.Desktop
+import java.io.File
+import java.io.IOException
 import java.net.URL
 import java.util.*
 import javax.swing.JOptionPane
@@ -26,7 +29,7 @@ class InicioController : Initializable
     @FXML lateinit var columnaToken: TableColumn<Token, Int>
 
     @FXML
-    fun analizar( e:ActionEvent)
+    fun analizar(e: ActionEvent)
     {
         if (codigoFuente.text.isNotEmpty())
         {
@@ -45,12 +48,11 @@ class InicioController : Initializable
     }
 
     @FXML
-    fun limpiar( e:ActionEvent)
+    fun limpiar(e: ActionEvent)
     {
 
         if (codigoFuente.text.isNotEmpty())
         {
-
             tablaTokens.items.clear()
             codigoFuente.text = ""
         }
@@ -67,11 +69,17 @@ class InicioController : Initializable
      *
      */
     @FXML
-    fun generarPDF( e:ActionEvent)
+    fun generarPDF(e: ActionEvent)
     {
-        try {
-            val p = Runtime.getRuntime().exec("rundll32 SHELL32.DLL,ShellExec_RunDLL " + "\\resources\\pdf\\Lenguaje Helix.pdf")
-        } catch (evvv: Exception) {
+        try
+        {
+
+                val objetofile: File = File("resources\\pdf\\Lenguaje Helix.pdf")
+                Desktop.getDesktop().open(objetofile)
+
+        }
+        catch (evvv: Exception)
+        {
             JOptionPane.showMessageDialog(null, "No se puede abrir el archivo de ayuda, probablemente fue borrado", "ERROR", JOptionPane.ERROR_MESSAGE)
         }
     }
