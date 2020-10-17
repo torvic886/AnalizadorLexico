@@ -7,12 +7,12 @@ package co.edu.uniquindio.compiladores.lexico
  * Versión en desarrollo: 1.0
  * Profesor: Carlos Andres Flores V.
  */
-class AnalizadorLexico ( var codigoFuente:String)
-{
+class AnalizadorLexico(var codigoFuente: String) {
 
     var caracterActual = codigoFuente[0]  //se captura el primer caracter de la cadena que entra por parámetro
-    var listaTokens = ArrayList<Token>()  //se declara una lista para almacenar los tokens validados
+    var listaTokens = ArrayList<Token>()  //se declara una lista para almacenar los tokens válidos
     var posicionActual = 0  // se declara una variable que va a permitir conocer la posición actual en un momento determinado
+    var listaErrores = ArrayList<Token>()  //se declara una lista para almacenar los errores identificados
     var finCodigo = 0.toChar()
     var filaActual = 0
     var columnaActual = 0
@@ -22,7 +22,7 @@ class AnalizadorLexico ( var codigoFuente:String)
      * ese mismo punto para validar otra categoría
      * @param: posicionInicial (posición a la cual se desea volver), filaInicial (fila la cual se desea volver), columnaInicial (col a la cual se desea volver)
      */
-    fun hacerBT(posicionInicial:Int, filaInicial:Int, columnaInicial:Int){
+    fun hacerBT(posicionInicial: Int, filaInicial: Int, columnaInicial: Int) {
         filaActual = filaInicial
         columnaActual = columnaInicial
         posicionActual = posicionInicial
@@ -33,12 +33,19 @@ class AnalizadorLexico ( var codigoFuente:String)
      * Método que permite almacenar un token previamente validado por alguna categoría, en la lista de los tokens validados
      * @param: lexema (token que se desea almacenar), categoria (categoría de ese token), fila (fila inicial), columna (col inicial)
      */
-    fun almacenarToken(lexema:String, categoria: Categoria, fila:Int, columna:Int ) = listaTokens.add(Token(lexema, categoria, fila, columna))
+    fun almacenarTokenErroneo(lexema: String, categoria: Categoria, fila: Int, columna: Int) = listaErrores.add(Token(lexema, categoria, fila, columna))
+
+    /**
+     * Método que permite almacenar un token previamente validado por alguna categoría, en la lista de los tokens validados
+     * @param: lexema (token que se desea almacenar), categoria (categoría de ese token), fila (fila inicial), columna (col inicial)
+     */
+    fun almacenarToken(lexema: String, categoria: Categoria, fila: Int, columna: Int) = listaTokens.add(Token(lexema, categoria, fila, columna))
+
 
     /**
      * Método que permite validar los token por categorías, una por una hasta hallar la indicada
      */
-    fun analizar(){
+    fun analizar() {
         while (caracterActual != finCodigo) {
             while (caracterActual == ' ') {
                 obtenerSiguienteCaracter()
@@ -73,7 +80,12 @@ class AnalizadorLexico ( var codigoFuente:String)
             if (esFinSentencia()) continue
             if (esCorcheteAbrir()) continue
             if (esCorcheteCerrar()) continue
-            //if (esPalabraReservada()) continue
+            if (esPalabraReservada()) continue
+
+
+            while (caracterActual == ' ') {
+                obtenerSiguienteCaracter()
+            }
 
 
             almacenarToken(lexema = "" + caracterActual, categoria = Categoria.NO_RECONOCIDO, fila = filaActual, columna = columnaActual)
@@ -370,6 +382,7 @@ class AnalizadorLexico ( var codigoFuente:String)
         return false
     }
 
+
     /**
      * Método que valida un identificador en Helix, como máximo debe tener 10 caracteres
      */
@@ -379,67 +392,74 @@ class AnalizadorLexico ( var codigoFuente:String)
         var columnaInicial = columnaActual
         var posicionInicial = posicionActual
 
-        if ( caracterActual == 'A' ) {
+        if (caracterActual == 'A') {
 
             lexema += caracterActual
             obtenerSiguienteCaracter()
 
-            if ( caracterActual == 'N' ) {
+            if (caracterActual == 'N') {
 
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
 
-                if ( caracterActual == 'D' ) {
+                if (caracterActual == 'D') {
 
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
 
-                    if ( caracterActual != finCodigo ){
+                    if (caracterActual != finCodigo) {
 
-                        if ( caracterActual == '#'  || caracterActual.isLetter() || caracterActual.isDigit())
-                        {
+                        if (caracterActual == '#' || caracterActual.isLetter() || caracterActual.isDigit()) {
                             hacerBT(posicionInicial, filaInicial, columnaInicial)
-                        } else{
+                        } else {
                             hacerBT(posicionInicial, filaInicial, columnaInicial)
                             return false
                         }
-                    } else{
+                    } else {
                         hacerBT(posicionInicial, filaInicial, columnaInicial)
                         return false
                     }
-                } else{
+                } else {
                     hacerBT(posicionInicial, filaInicial, columnaInicial)
                 }
             }
         }
-        if ( caracterActual == 'O' ) {
+        if (caracterActual == 'O') {
 
             lexema += caracterActual
             obtenerSiguienteCaracter()
 
-            if ( caracterActual == 'R' ) {
+            if (caracterActual == 'R') {
 
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
 
-                if ( caracterActual != finCodigo ){
+                if (caracterActual != finCodigo) {
 
-                    if ( caracterActual == '#'  || caracterActual.isLetter() || caracterActual.isDigit())
-                    {
+                    if (caracterActual == '#' || caracterActual.isLetter() || caracterActual.isDigit()) {
                         hacerBT(posicionInicial, filaInicial, columnaInicial)
-                    } else{
+                    } else {
                         hacerBT(posicionInicial, filaInicial, columnaInicial)
                         return false
                     }
-                } else{
+                } else {
                     hacerBT(posicionInicial, filaInicial, columnaInicial)
                     return false
                 }
-            } else{
+            } else {
                 hacerBT(posicionInicial, filaInicial, columnaInicial)
             }
         }
+
         lexema = ""
+
+        // Descarta la posibilidad de confundir una palabra reservada con un identificador
+        if (esPalabraReservada()) {
+            hacerBT(posicionInicial, filaInicial, columnaInicial)
+            return true
+        }
+
+
         // En Helix, cada identificador debe empezar con una letra o un '#'
         if (caracterActual.isLetter() || caracterActual == '#') {
             lexema = ""
@@ -483,7 +503,7 @@ class AnalizadorLexico ( var codigoFuente:String)
                             if (caracterActual == '|') {
                                 lexema += caracterActual
                                 obtenerSiguienteCaracter()
-                                almacenarToken(lexema, Categoria.ERROR, filaInicial, columnaInicial)
+                                almacenarTokenErroneo(lexema, Categoria.ERROR, filaInicial, columnaInicial)
                                 return true
                             }
                             lexema += caracterActual
@@ -517,7 +537,7 @@ class AnalizadorLexico ( var codigoFuente:String)
      * Método que valida un caractere en Helix
      */
     fun esCaracter(): Boolean {
-        if (caracterActual == '.') {
+        if (caracterActual == '\"') {
 
             var lexema = ""
             var filaInicial = filaActual
@@ -534,7 +554,7 @@ class AnalizadorLexico ( var codigoFuente:String)
             lexema += caracterActual
             obtenerSiguienteCaracter()
 
-            if (caracterActual == '.') {
+            if (caracterActual == '\"') {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
                 almacenarToken(lexema, Categoria.CARACTER, filaInicial, columnaInicial)
@@ -665,11 +685,12 @@ class AnalizadorLexico ( var codigoFuente:String)
         }
         return false
     }
+
     /** Método que valida operador incremento en Helix
      *
      */
-    fun esOperadorIncremento():Boolean{
-        if ( caracterActual == '+'){
+    fun esOperadorIncremento(): Boolean {
+        if (caracterActual == '+') {
             var lexema = ""
             var filaInicial = filaActual
             var columnaInicial = columnaActual
@@ -679,16 +700,17 @@ class AnalizadorLexico ( var codigoFuente:String)
             lexema += caracterActual
             obtenerSiguienteCaracter()
 
-            almacenarToken(lexema, Categoria.SEPARADOR, filaInicial, columnaInicial)
+            almacenarToken(lexema, Categoria.OPERADOR_INCREMENTO, filaInicial, columnaInicial)
             return true
         }
         return false
     }
+
     /** Método que valida operador decremento en Helix
      *
      */
-    fun esOperadorDecremento():Boolean{
-        if ( caracterActual == '-'){
+    fun esOperadorDecremento(): Boolean {
+        if (caracterActual == '-') {
             var lexema = ""
             var filaInicial = filaActual
             var columnaInicial = columnaActual
@@ -698,26 +720,27 @@ class AnalizadorLexico ( var codigoFuente:String)
             lexema += caracterActual
             obtenerSiguienteCaracter()
 
-            almacenarToken(lexema, Categoria.SEPARADOR, filaInicial, columnaInicial)
+            almacenarToken(lexema, Categoria.OPERADOR_DECREMENTO, filaInicial, columnaInicial)
             return true
         }
         return false
     }
+
     /**
      * Método que valida un operador lógico en Helix
      */
     fun esOperadorLogico(): Boolean {
-        if ( caracterActual == 'A' ) {
+        if (caracterActual == 'A') {
             var lexema = ""
             var filaInicial = filaActual
             var columnaInicial = columnaActual
             var posicionInicial = posicionActual
             lexema += caracterActual
             obtenerSiguienteCaracter()
-            if ( caracterActual == 'N' ) {
+            if (caracterActual == 'N') {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
-                if ( caracterActual == 'D' ) {
+                if (caracterActual == 'D') {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
                     almacenarToken(lexema, Categoria.OPERADOR_LOGICO, filaInicial, columnaInicial)
@@ -728,7 +751,7 @@ class AnalizadorLexico ( var codigoFuente:String)
             return false
 
         }
-        if ( caracterActual == 'O' ) {
+        if (caracterActual == 'O') {
             var lexema = ""
             var filaInicial = filaActual
             var columnaInicial = columnaActual
@@ -736,7 +759,7 @@ class AnalizadorLexico ( var codigoFuente:String)
             lexema += caracterActual
             obtenerSiguienteCaracter()
 
-            if ( caracterActual == 'R' ) {
+            if (caracterActual == 'R') {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
                 almacenarToken(lexema, Categoria.OPERADOR_LOGICO, filaInicial, columnaInicial)
@@ -749,6 +772,7 @@ class AnalizadorLexico ( var codigoFuente:String)
         }
         return false
     }
+
     /**
      * Método que valida un comentario bloque en Helix
      */
@@ -762,9 +786,9 @@ class AnalizadorLexico ( var codigoFuente:String)
             lexema += caracterActual
             obtenerSiguienteCaracter()
 
-            while ( caracterActual != finCodigo ) {
+            while (caracterActual != finCodigo) {
 
-                if ( caracterActual == '~'){
+                if (caracterActual == '~') {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
                     almacenarToken(lexema, Categoria.COMENRARIO_BLOQUE, filaInicial, columnaInicial)
@@ -773,8 +797,8 @@ class AnalizadorLexico ( var codigoFuente:String)
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
             }
-            almacenarToken(lexema, Categoria.ERROR, filaInicial, columnaInicial)
-            return false
+            almacenarTokenErroneo(lexema, Categoria.ERROR, filaInicial, columnaInicial)
+            return true
 
         }
         return false
@@ -783,8 +807,7 @@ class AnalizadorLexico ( var codigoFuente:String)
     /**
      * Método que valida un comentario línea en Helix
      */
-    fun esComentarioLinea(): Boolean
-    {
+    fun esComentarioLinea(): Boolean {
         if (caracterActual == '¬') {
 
             var lexema = ""
@@ -794,13 +817,13 @@ class AnalizadorLexico ( var codigoFuente:String)
             lexema += caracterActual
             obtenerSiguienteCaracter()
 
-            while ( caracterActual != finCodigo && filaInicial == filaActual) {
+            while (caracterActual != finCodigo && filaInicial == filaActual) {
 
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
             }
-            if ( caracterActual != finCodigo ){
-                lexema = lexema.substring(0, lexema.length-1)
+            if (caracterActual != finCodigo) {
+                lexema = lexema.substring(0, lexema.length - 1)
             }
             almacenarToken(lexema, Categoria.COMENTARIO_LINEA, filaInicial, columnaInicial)
             return true
@@ -813,7 +836,7 @@ class AnalizadorLexico ( var codigoFuente:String)
      */
     fun esOperadorInicial(): Boolean {
 
-        if ( caracterActual == '-'){
+        if (caracterActual == '-') {
 
             var lexema = ""
             var filaInicial = filaActual
@@ -824,14 +847,14 @@ class AnalizadorLexico ( var codigoFuente:String)
             lexema += caracterActual
             obtenerSiguienteCaracter()
 
-            if ( caracterActual == '-' ){
+            if (caracterActual == '-') {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
 
-                if ( caracterActual == '>'){
+                if (caracterActual == '>') {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
-                    almacenarToken( lexema, Categoria.OPERADOR_TERMINAL, filaInicial, columnaInicial)
+                    almacenarToken(lexema, Categoria.LLAVE_ABRIR, filaInicial, columnaInicial)
                     return true
                 }
             }
@@ -841,11 +864,12 @@ class AnalizadorLexico ( var codigoFuente:String)
         return false
 
     }
+
     /**
      * Método que valida llave cerrar
      */
     fun esOperadorTerminal(): Boolean {
-        if ( caracterActual == '<'){
+        if (caracterActual == '<') {
 
             var lexema = ""
             var filaInicial = filaActual
@@ -856,14 +880,14 @@ class AnalizadorLexico ( var codigoFuente:String)
             lexema += caracterActual
             obtenerSiguienteCaracter()
 
-            if ( caracterActual == '-' ){
+            if (caracterActual == '-') {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
 
-                if ( caracterActual == '-'){
+                if (caracterActual == '-') {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
-                    almacenarToken( lexema, Categoria.OPERADOR_TERMINAL, filaInicial, columnaInicial)
+                    almacenarToken(lexema, Categoria.LLAVE_CERRAR, filaInicial, columnaInicial)
                     return true
                 }
             }
@@ -874,11 +898,12 @@ class AnalizadorLexico ( var codigoFuente:String)
 
 
     }
+
     /** Método que valida corchete abrir
      *
      */
-    fun esCorcheteAbrir():Boolean{
-        if ( caracterActual == '{'){
+    fun esCorcheteAbrir(): Boolean {
+        if (caracterActual == '{') {
             var lexema = ""
             var filaInicial = filaActual
             var columnaInicial = columnaActual
@@ -893,11 +918,12 @@ class AnalizadorLexico ( var codigoFuente:String)
         }
         return false
     }
-    /** Método que valida corchete abrir
+
+    /** Método que valida corchete cerrar
      *
      */
-    fun esCorcheteCerrar():Boolean{
-        if ( caracterActual == '}'){
+    fun esCorcheteCerrar(): Boolean {
+        if (caracterActual == '}') {
             var lexema = ""
             var filaInicial = filaActual
             var columnaInicial = columnaActual
@@ -912,11 +938,12 @@ class AnalizadorLexico ( var codigoFuente:String)
         }
         return false
     }
+
     /** Método que valida paréntesis de abrir
      *
      */
-    fun esParentesisAbrir():Boolean{
-        if ( caracterActual == '['){
+    fun esParentesisAbrir(): Boolean {
+        if (caracterActual == '[') {
             var lexema = ""
             var filaInicial = filaActual
             var columnaInicial = columnaActual
@@ -931,11 +958,12 @@ class AnalizadorLexico ( var codigoFuente:String)
         }
         return false
     }
-    /** Método que valida paréntesis de abrir
+
+    /** Método que valida paréntesis de cerrar
      *
      */
-    fun esParentesisCerrar():Boolean{
-        if ( caracterActual == ']'){
+    fun esParentesisCerrar(): Boolean {
+        if (caracterActual == ']') {
             var lexema = ""
             var filaInicial = filaActual
             var columnaInicial = columnaActual
@@ -950,11 +978,12 @@ class AnalizadorLexico ( var codigoFuente:String)
         }
         return false
     }
+
     /** Método que valida separador en Helix
      *
      */
-    fun esSeparador():Boolean{
-        if ( caracterActual == ';'){
+    fun esSeparador(): Boolean {
+        if (caracterActual == ';') {
             var lexema = ""
             var filaInicial = filaActual
             var columnaInicial = columnaActual
@@ -969,11 +998,12 @@ class AnalizadorLexico ( var codigoFuente:String)
         }
         return false
     }
+
     /** Método que valida fin de sentencia en Helix
      *
      */
-    fun esFinSentencia():Boolean{
-        if ( caracterActual == '_'){
+    fun esFinSentencia(): Boolean {
+        if (caracterActual == '_') {
             var lexema = ""
             var filaInicial = filaActual
             var columnaInicial = columnaActual
@@ -1235,7 +1265,7 @@ class AnalizadorLexico ( var codigoFuente:String)
         posicionInicial = posicionActual
 
         // Verifica pal reservada 'Entero' <--> 'int'
-        if (caracterActual == 'E') {
+        if (caracterActual == 'e') {
             lexema += caracterActual
             obtenerSiguienteCaracter()
             if (caracterActual == 'n') {
@@ -1710,20 +1740,25 @@ class AnalizadorLexico ( var codigoFuente:String)
     }
 
 
-
     /**
      * Método que consulta, si es posible, el caracter siguiente en la cadena principal
      */
-    fun obtenerSiguienteCaracter(){
+    fun obtenerSiguienteCaracter() {
         // verifica si se trata del último caracter
-        if ( posicionActual == codigoFuente.length-1 ){
+        if (posicionActual == codigoFuente.length - 1) {
             caracterActual = finCodigo
-        } else{
+        } else {
             // verifica si se trata de un salto de línea
-            if ( caracterActual == '?' || codigoFuente[posicionActual+1] == 'S'){
+            if (caracterActual == '&' && codigoFuente[posicionActual + 1] == 'S') {
                 filaActual++
                 columnaActual = 0
-            } else{
+            } else {
+                columnaActual++
+            }
+            if (caracterActual == '&' && codigoFuente[posicionActual + 1] == 'D') {
+                filaActual++
+                columnaActual = 0
+            } else {
                 columnaActual++
             }
             posicionActual++
