@@ -51,6 +51,7 @@ class AnalizadorLexico(var codigoFuente: String) {
                 obtenerSiguienteCaracter()
             }
 
+
             if (esEntero()) continue
             if (esEnteroCorto()) continue
             if (esEnteroLargo()) continue
@@ -58,6 +59,7 @@ class AnalizadorLexico(var codigoFuente: String) {
             if (esDecimalCorto()) continue
             if (esDecimalLargo()) continue
             if (esIdentificador()) continue
+            if (esPalabraReservada()) continue
             if (esOperadorLogico()) continue
             if (esCadenaCaracteres()) continue
             if (esCaracter()) continue
@@ -80,17 +82,18 @@ class AnalizadorLexico(var codigoFuente: String) {
             if (esFinSentencia()) continue
             if (esCorcheteAbrir()) continue
             if (esCorcheteCerrar()) continue
-            if (esPalabraReservada()) continue
+            if (esDosPuntos()) continue
+            if (esConcatenador()) continue
 
-
-            while (caracterActual == ' ') {
+            if (caracterActual == ' ') {
+                obtenerSiguienteCaracter()
+                while (caracterActual == ' ') {
+                    obtenerSiguienteCaracter()
+                }
+            } else {
+                almacenarToken(lexema = "" + caracterActual, categoria = Categoria.NO_RECONOCIDO, fila = filaActual, columna = columnaActual)
                 obtenerSiguienteCaracter()
             }
-
-
-            almacenarToken(lexema = "" + caracterActual, categoria = Categoria.NO_RECONOCIDO, fila = filaActual, columna = columnaActual)
-            obtenerSiguienteCaracter()
-
         }
 
     }
@@ -122,6 +125,16 @@ class AnalizadorLexico(var codigoFuente: String) {
 
                         if (posicionActual < codigoFuente.length - 1) {
                             if (!codigoFuente[posicionActual + 1].isDigit()) {
+                                //posicionActual = posicionActual-1
+                                //columnaActual = columnaActual-1
+                                //lexema = lexema.substring( 0, lexema.length- )
+                                almacenarToken(lexema, Categoria.ENTERO, filaInicial, columnaInicial)
+                                return true
+                            }
+                        }
+                    } else {
+                        if (posicionActual < codigoFuente.length - 1) {
+                            if (codigoFuente[posicionActual + 1] != 'c' || codigoFuente[posicionActual + 1] != 'l') {
                                 //posicionActual = posicionActual-1
                                 //columnaActual = columnaActual-1
                                 //lexema = lexema.substring( 0, lexema.length- )
@@ -456,7 +469,8 @@ class AnalizadorLexico(var codigoFuente: String) {
         // Descarta la posibilidad de confundir una palabra reservada con un identificador
         if (esPalabraReservada()) {
             hacerBT(posicionInicial, filaInicial, columnaInicial)
-            return true
+            listaTokens.removeAt(listaTokens.size - 1)
+            return false
         }
 
 
@@ -532,6 +546,28 @@ class AnalizadorLexico(var codigoFuente: String) {
         }
         return false
     }
+
+
+    /**
+     * Método que valida un XXXXXXXXXXXXXXXXX en Helix
+     */
+    fun esDosPuntos(): Boolean {
+        if (caracterActual == ':') {
+
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            almacenarToken(lexema, Categoria.DOS_PUNTOS, filaInicial, columnaInicial)
+            return true
+
+        }
+        return false
+    }
+
 
     /**
      * Método que valida un caractere en Helix
@@ -719,6 +755,14 @@ class AnalizadorLexico(var codigoFuente: String) {
 
             lexema += caracterActual
             obtenerSiguienteCaracter()
+            if (caracterActual == '-') {
+                obtenerSiguienteCaracter()
+                if (caracterActual == '>') {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }
+
 
             almacenarToken(lexema, Categoria.OPERADOR_DECREMENTO, filaInicial, columnaInicial)
             return true
@@ -919,6 +963,26 @@ class AnalizadorLexico(var codigoFuente: String) {
         return false
     }
 
+    /** Método que valida un concatenador ","
+     *
+     */
+    fun esConcatenador(): Boolean {
+        if (caracterActual == ',') {
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            almacenarToken(lexema, Categoria.CONCATENADOR, filaInicial, columnaInicial)
+            return true
+        }
+        return false
+    }
+
     /** Método que valida corchete cerrar
      *
      */
@@ -1058,8 +1122,13 @@ class AnalizadorLexico(var codigoFuente: String) {
                                             lexema += caracterActual
                                             obtenerSiguienteCaracter()
 
-                                            almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                                            return true
+                                            if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                                return true
+                                            } else {
+                                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                                return false
+                                            }
                                         }
                                     }
                                 }
@@ -1075,9 +1144,9 @@ class AnalizadorLexico(var codigoFuente: String) {
         filaInicial = filaActual
         columnaInicial = columnaActual
         posicionInicial = posicionActual
-
         // Verifica pal reservada 'limited' <--> 'private'
         if (caracterActual == 'l') {
+            print("Entro")
             lexema += caracterActual
             obtenerSiguienteCaracter()
             if (caracterActual == 'i') {
@@ -1099,8 +1168,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                                     lexema += caracterActual
                                     obtenerSiguienteCaracter()
 
-                                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                                    return true
+
+                                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                        return true
+                                    } else {
+                                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                        return false
+                                    }
                                 }
 
                             }
@@ -1148,8 +1223,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                                                 lexema += caracterActual
                                                 obtenerSiguienteCaracter()
 
-                                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                                                return true
+
+                                                if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                                    return true
+                                                } else {
+                                                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                                    return false
+                                                }
                                             }
                                         }
                                     }
@@ -1168,6 +1249,33 @@ class AnalizadorLexico(var codigoFuente: String) {
         columnaInicial = columnaActual
         posicionInicial = posicionActual
 
+        // Verifica pal reservada 'no' <--> '!'
+        if (caracterActual == 'n') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'o') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+
+
+                if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }
+        }
+
+
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
         // Verifica pal reservada 'to' <--> 'for'
         if (caracterActual == 't') {
             lexema += caracterActual
@@ -1176,10 +1284,96 @@ class AnalizadorLexico(var codigoFuente: String) {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
 
-                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                return true
+
+                if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
             }
         }
+
+
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'to' <--> 'for'
+        if (caracterActual == 'n') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'o') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+
+
+                if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                    almacenarToken(lexema, Categoria.NEGACION, filaInicial, columnaInicial)
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }
+        }
+
+
+
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'conjunto' <--> 'lista'
+        if (caracterActual == 'c') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'o') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'n') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'j') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'u') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+                            if (caracterActual == 'n') {
+                                lexema += caracterActual
+                                obtenerSiguienteCaracter()
+                                if (caracterActual == 't') {
+                                    lexema += caracterActual
+                                    obtenerSiguienteCaracter()
+                                    if (caracterActual == 'o') {
+                                        lexema += caracterActual
+                                        obtenerSiguienteCaracter()
+
+                                        if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                            almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                            return true
+                                        } else {
+                                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                            return false
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
         // se inician las variables desde el punto de inicio, para continual validando
         hacerBT(posicionInicial, filaInicial, columnaInicial)
         lexema = ""
@@ -1210,8 +1404,13 @@ class AnalizadorLexico(var codigoFuente: String) {
                                     lexema += caracterActual
                                     obtenerSiguienteCaracter()
 
-                                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                                    return true
+                                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                        return true
+                                    } else {
+                                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                        return false
+                                    }
                                 }
 
                             }
@@ -1248,9 +1447,13 @@ class AnalizadorLexico(var codigoFuente: String) {
                                 lexema += caracterActual
                                 obtenerSiguienteCaracter()
 
-                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                                return true
-
+                                if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                    return true
+                                } else {
+                                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                    return false
+                                }
                             }
                         }
                     }
@@ -1285,9 +1488,13 @@ class AnalizadorLexico(var codigoFuente: String) {
                                 lexema += caracterActual
                                 obtenerSiguienteCaracter()
 
-                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                                return true
-
+                                if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                    return true
+                                } else {
+                                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                    return false
+                                }
                             }
                         }
                     }
@@ -1312,17 +1519,140 @@ class AnalizadorLexico(var codigoFuente: String) {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
 
-                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                    return true
+
+                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
                 }
             }
         }
+
         // se inician las variables desde el punto de inicio, para continual validando
         hacerBT(posicionInicial, filaInicial, columnaInicial)
         lexema = ""
         filaInicial = filaActual
         columnaInicial = columnaActual
         posicionInicial = posicionActual
+
+
+        if (caracterActual == 'i') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 's') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+
+                if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }
+        }
+
+
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'yes' <--> 'true' (en Kotlin)
+        if (caracterActual == 'y') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'e') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 's') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                }
+            }
+        }
+
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'not' <--> 'false' (en Kotlin)
+        if (caracterActual == 'n') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'o') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 't') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                }
+            }
+        }
+
+
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'mtd' <--> 'fun' (en Kotlin)
+        if (caracterActual == 'm') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 't') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'd') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                }
+            }
+        }
+
+
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
 
         // Verifica pal reservada 'dec' <--> 'decimal'
         if (caracterActual == 'd') {
@@ -1335,8 +1665,13 @@ class AnalizadorLexico(var codigoFuente: String) {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
 
-                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                    return true
+                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
                 }
             }
         }
@@ -1358,11 +1693,18 @@ class AnalizadorLexico(var codigoFuente: String) {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
 
-                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                    return true
+
+                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
                 }
             }
         }
+
 
         // se inician las variables desde el punto de inicio, para continual validando
         hacerBT(posicionInicial, filaInicial, columnaInicial)
@@ -1385,8 +1727,53 @@ class AnalizadorLexico(var codigoFuente: String) {
                         lexema += caracterActual
                         obtenerSiguienteCaracter()
 
-                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                        return true
+
+                        if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                            almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                            return true
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
+                    }
+
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'lista' <--> 'list'
+        if (caracterActual == 'l') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'i') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 's') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 't') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'a') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+
+
+                            if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                return true
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
+                        }
                     }
 
                 }
@@ -1418,8 +1805,55 @@ class AnalizadorLexico(var codigoFuente: String) {
                             lexema += caracterActual
                             obtenerSiguienteCaracter()
 
-                            almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                            return true
+
+                            if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                return true
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'other' <--> 'else'
+        if (caracterActual == 'o') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 't') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'h') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'e') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'r') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+
+
+                            if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                return true
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
                         }
                     }
 
@@ -1448,8 +1882,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                         lexema += caracterActual
                         obtenerSiguienteCaracter()
 
-                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                        return true
+
+                        if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                            almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                            return true
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
                     }
 
                 }
@@ -1475,8 +1915,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
 
-                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                    return true
+
+                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
                 }
             }
         }
@@ -1501,8 +1947,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
 
-                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                    return true
+
+                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
                 }
             }
         }
@@ -1529,8 +1981,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                         lexema += caracterActual
                         obtenerSiguienteCaracter()
 
-                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                        return true
+
+                        if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                            almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                            return true
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
                     }
 
                 }
@@ -1555,8 +2013,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
 
-                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                    return true
+
+                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
                 }
             }
         }
@@ -1579,8 +2043,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
 
-                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                    return true
+
+                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
                 }
             }
         }
@@ -1612,8 +2082,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                                 lexema += caracterActual
                                 obtenerSiguienteCaracter()
 
-                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                                return true
+
+                                if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                    return true
+                                } else {
+                                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                    return false
+                                }
                             }
                         }
                     }
@@ -1645,8 +2121,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                             lexema += caracterActual
                             obtenerSiguienteCaracter()
 
-                            almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                            return true
+
+                            if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                return true
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
 
                         }
                     }
@@ -1672,8 +2154,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
 
-                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                    return true
+
+                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
                 }
             }
         }
@@ -1699,8 +2187,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                         lexema += caracterActual
                         obtenerSiguienteCaracter()
 
-                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                        return true
+
+                        if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                            almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                            return true
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
                     }
                 }
             }
@@ -1727,8 +2221,14 @@ class AnalizadorLexico(var codigoFuente: String) {
                         lexema += caracterActual
                         obtenerSiguienteCaracter()
 
-                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                        return true
+
+                        if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                            almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                            return true
+                        } else {
+                            hacerBT(posicionInicial, filaInicial, columnaInicial)
+                            return false
+                        }
                     }
                 }
             }
@@ -1749,15 +2249,15 @@ class AnalizadorLexico(var codigoFuente: String) {
             caracterActual = finCodigo
         } else {
             // verifica si se trata de un salto de línea
-            if (caracterActual == '&' && codigoFuente[posicionActual + 1] == 'S') {
-                filaActual++
-                columnaActual = 0
-            } else {
-                columnaActual++
-            }
-            if (caracterActual == '&' && codigoFuente[posicionActual + 1] == 'D') {
-                filaActual++
-                columnaActual = 0
+            if (caracterActual == '&') {
+                if (codigoFuente[posicionActual + 1] == 'S') {
+                    posicionActual = posicionActual + 1
+                    filaActual++
+                    columnaActual = 0
+                    listaTokens.removeAt((listaTokens.size - 1))
+                    //print("------------------------------ENTROOOOOOOO----------------------")
+                }
+
             } else {
                 columnaActual++
             }
