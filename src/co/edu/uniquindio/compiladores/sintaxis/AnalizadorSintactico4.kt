@@ -4,7 +4,8 @@ import co.edu.uniquindio.compiladores.lexico.Categoria
 import co.edu.uniquindio.compiladores.lexico.Error
 import co.edu.uniquindio.compiladores.lexico.Token
 
-class AnalizadorSintactico4(var listaTokens: ArrayList<Token>) {
+class AnalizadorSintactico4(var listaTokens: ArrayList<Token>)
+{
     var posicionActual = 0
     var tokenActual = listaTokens[0]
     val listaErrores = ArrayList<Error>()
@@ -14,7 +15,8 @@ class AnalizadorSintactico4(var listaTokens: ArrayList<Token>) {
      * ese mismo punto para validar otra categoría sintáctica
      * @param: posicionInicial (posición a la cual se desea volver)
      */
-    fun hacerBT(posicionInicial: Int) {
+    fun hacerBT(posicionInicial: Int)
+    {
         posicionActual = posicionInicial
         tokenActual = listaTokens[posicionInicial]
     }
@@ -268,6 +270,519 @@ class AnalizadorSintactico4(var listaTokens: ArrayList<Token>) {
         return null
     }
 
+    /**
+     * Aca ingrese esto < VICTOR>
+     */
 
+    /**
+     * <ListaSentencias> ::= <Sentencia><ListaSentencias> | <Sentencia>
+     */
+    fun esBloqueDeSentencia(): ArrayList<Sentencia2>
+    {
+        val listaSentencias = ArrayList<Sentencia2>()
+        var sentencia = esSentencia()
+
+        if (sentencia != null)
+        {
+            listaSentencias.add(sentencia)
+            sentencia = esSentencia()
+
+            while (sentencia != null)
+            {
+                listaSentencias.add(sentencia)
+                sentencia = esSentencia()
+            }
+        }
+        return listaSentencias
+    }
+
+    /**
+     *  <Sentencia> ::= < InvocaciónDeFunción> | < SentenciaAsignación> |
+    < SentenciaChek> |< SentenciaWhereas> |
+    <SentenciaDeclaraciónDeVariableInmutable> |
+    <SentenciaDeclaraciónDeVariableMutable> |
+    <SentenciaDeRetorno> | <SentenciaDeIncremento> |
+    <SentenciaDeDecremento> | <SentenciaImprimir>
+    <SentenciaLeer>
+     */
+    fun esSentencia(): Sentencia2?
+    {
+
+        val asignacion = esAsignacion()
+        if (asignacion != null)
+        {
+            return asignacion
+        }
+
+        // Verifica que se trate de la invocación de una función
+        val invocacionFuncion = esInvocacionDeFuncion()
+
+        if (invocacionFuncion != null)
+        {
+            return invocacionFuncion
+        }
+
+
+        val chek = esChek()
+        if (chek != null)
+        {
+            return chek
+        }
+
+
+
+        val whereas = esWhereas()
+        if (whereas != null) {
+            return whereas
+        }
+
+        val declaracionVariableInmutable = esDeclaracionDeVariableInmutable()
+        // Verifica si se trata de la declaración de una variable inmutable
+        if (declaracionVariableInmutable != null)
+        {
+            return declaracionVariableInmutable
+        }
+
+        val retorno = esRetorno()
+        if (retorno != null)
+        {
+            return retorno
+        }
+        /*
+        val incremento = esIncremento()
+        if (incremento != null) {
+            return incremento
+        }
+
+        val decremento = esDecremento()
+        if (decremento != null) {
+            return decremento
+        }
+        val imprimir = esImprimir()
+        if (imprimir != null) {
+            return imprimir
+        }
+        val leer = esLeer()
+        if (leer != null) {
+            return null
+        }*/
+        return null
+    }
+
+    fun esLeer(): SentenciaLeer2?
+    {
+        return null
+    }
+
+    /**
+     * <SentenciaDeIncremento> ::= <ExpresiónAritmética> "+" "_"
+     */
+    fun esIncremento(): SentenciaIncremento2?
+    {
+        /*val expresionAritmetica = esExpresionAritmetica()
+        if (expresionAritmetica != null)
+        {
+            if (tokenActual.categoria == Categoria.OPERADOR_INCREMENTO)
+             {
+                obtenerSiguienteToken()
+                if (tokenActual.categoria == Categoria.FIN_SENTENCIA)
+                 {
+                    obtenerSiguienteToken()
+                    return SentenciaIncremento(expresionAritmetica)
+                }
+                 else
+                 {
+                    reportarError("Es preciso que especifique el final de la sentencia incremento")
+                }
+            }
+        }*/
+        return null
+    }
+
+    /**
+     * <SentenciaDeDecremento> ::= <ExpresiónAritmética> "-" "_"
+     */
+    fun esDecremento(): SentenciaDecremento2?
+    {
+        /*val expresionAritmetica = esExpresionAritmetica()
+        if (expresionAritmetica != null) {
+            if (tokenActual.categoria == Categoria.OPERADOR_DECREMENTO) {
+                obtenerSiguienteToken()
+                if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+                    obtenerSiguienteToken()
+                    return SentenciaDecremento(expresionAritmetica)
+                } else {
+                    reportarError("Es preciso que especifique el final de la sentencia incremento")
+                }
+            }
+        }*/
+        return null
+    }
+
+    fun esImprimir(): SentenciaImprimir2?
+    {
+        return null
+    }
+
+    /**
+     * <Condición> ::= ["~"] <Condición> | <ExpresiónRelacional> | <ExpresiónLógica> | yes | not
+     */
+    fun esCondicion(): Condicion2?
+    {
+        if (tokenActual.categoria == Categoria.NEGACION && tokenActual.lexema == "no")
+        {
+            obtenerSiguienteToken()
+
+            if (tokenActual.categoria == Categoria.PALABRA_RESERVADA || tokenActual.lexema == "yes" || tokenActual.lexema == "not")
+            {
+                val cent = tokenActual
+                obtenerSiguienteToken()
+                return Condicion2(Negacion2(cent))
+            }
+
+            val expRel = esExpresionRelacional()
+
+            if (expRel != null)
+            {
+                return Condicion2(Negacion2(expRel))
+            }
+
+            val expLog = esExpresionLogica()
+
+            if (expLog != null)
+            {
+                return Condicion2(Negacion2(expLog))
+            }
+            reportarError("Después de la palabra 'no' debe continuar una condición")
+        }
+        //no exRe
+        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && (tokenActual.lexema == "yes" || tokenActual.lexema == "not"))
+        {
+            val cent = tokenActual
+            obtenerSiguienteToken()
+            return Condicion2(cent)
+        }
+
+        val expRel = esExpresionRelacional()
+
+        if (expRel != null)
+        {
+            return Condicion2(expRel)
+        }
+
+        val expLog = esExpresionLogica()
+
+        if (expLog != null)
+        {
+            return Condicion2(expLog)
+        }
+        return null
+    }
+
+    /**
+     *  <SentenciaChek> ::= chek <Condición> “-“ “-“ “>” [<ListaSentencias>] “<” “-” “-” [other “-“ “-“ “>” [<ListaSentencias>] “<” “-“ “-“]
+
+     */
+    fun esChek(): SentenciaChek2?
+    {
+        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && tokenActual.lexema == "check")
+        {
+            obtenerSiguienteToken()
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ENTRA PAL CHECK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            val condicion = esCondicion()
+            if (condicion != null)
+            {
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ENTRA CONDICION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                if (tokenActual.categoria == Categoria.LLAVE_ABRIR)
+                {
+                    obtenerSiguienteToken()
+                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ENTRA LLAVE ABRIR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    var bloqueSentencias = esBloqueDeSentencia()
+
+                    if (tokenActual.categoria == Categoria.LLAVE_CERRAR)
+                    {
+                        obtenerSiguienteToken()
+                        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ENTRA LLAVE CERRAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && tokenActual.lexema == "other")
+                        {
+                            obtenerSiguienteToken()
+
+                            if (tokenActual.categoria == Categoria.LLAVE_ABRIR)
+                            {
+                                obtenerSiguienteToken()
+
+                                val bloqueSentenciasOther = esBloqueDeSentencia()
+
+                                if (tokenActual.categoria == Categoria.LLAVE_CERRAR)
+                                {
+                                    obtenerSiguienteToken()
+
+                                    // Como todo bien, entonces:
+                                    return SentenciaChek2(condicion, bloqueSentencias, Other2(bloqueSentenciasOther))
+                                }
+                                else
+                                {
+                                    reportarError("Hace falta llave cerrar del 'other'")
+                                }
+                            } else
+                            {
+                                reportarError("Hace falta llave abrir del 'other'")
+                            }
+
+
+                        }
+                        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CASI RETORNA EL CHECK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                        // Como todo bien, y no es obligatorio el other, entonces:
+                        return SentenciaChek2(condicion, bloqueSentencias, null)
+                    }
+                    else
+                    {
+                        reportarError("Hace falta llave cerrar en el chek")
+                    }
+
+                } else
+                {
+                    reportarError("Después de una condición debe seguir una llave de abrir")
+                }
+            } else
+            {
+                reportarError("Después de la pal 'chek' debe seguir una condición")
+            }
+        }
+        return null
+    }
+
+    fun esWhereas(): SentenciaWhereas2?
+    {
+        return null
+    }
+
+    /**
+     * <SentenciaDeclaraciónDeVariableInmutable> ::=  <TipoDatoInmutable> “:” <Identificador> "_"
+     */
+    fun esDeclaracionDeVariableInmutable(): SentenciaDeclaracionVariableInmutable2?
+    {
+        val tipoDato = esTipoDato()
+        if (tipoDato != null)
+        {
+            if (tipoDato.lexema != "conjunto" && tipoDato.lexema != "lista")
+            {
+                obtenerSiguienteToken()
+                if (tokenActual.categoria == Categoria.DOS_PUNTOS)
+                {
+                    obtenerSiguienteToken()
+                    if (tokenActual.categoria == Categoria.IDENTIFICADOR)
+                    {
+                        val nombreVar = tokenActual
+                        obtenerSiguienteToken()
+                        if (tokenActual.categoria == Categoria.FIN_SENTENCIA)
+                        {
+                            obtenerSiguienteToken()
+                            return SentenciaDeclaracionVariableInmutable2(tipoDato, nombreVar)
+                        }
+                        else
+                        {
+                            reportarError("Es preciso especificar el '_' al terminar de declarar la var inmutable")
+                        }
+                    }
+
+                }
+                else
+                {
+
+                    reportarError("Es preciso especificar ':' después de definir el tipo de dato jajaja")
+                }
+
+            }
+        }
+        return null
+    }
+
+    /**
+     * <SentenciaDeRetorno> ::= dev <Expresión> "_"
+     */
+    fun esRetorno(): SentenciaRetorno2?
+    {
+        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && tokenActual.lexema == "dev")
+        {
+            obtenerSiguienteToken()
+            val expresion = esExpresion()
+
+            if (expresion != null)
+            {
+                if (tokenActual.categoria == Categoria.FIN_SENTENCIA)
+                {
+                    obtenerSiguienteToken()
+                    return SentenciaRetorno2(expresion)
+                }
+                else
+                {
+                    reportarError("Es preciso especificar el final de la sentencia")
+                }
+            }
+            else
+            {
+                reportarError("Después de la palabra 'dev' debe seguir una expresión")
+            }
+        }
+        return null
+    }
+
+    /**
+     * <SentenciaAsignación> ::= Identificador opAsignación <Expresión> finSentencia
+     */
+    fun esAsignacion(): SentenciaAsignacion2?
+    {
+        if (tokenActual.categoria == Categoria.IDENTIFICADOR)
+        {
+            val nombreVariable = tokenActual
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$44444444444444444444Entra asignacion4444444444444444$$$$$$$$$$$$44444444")
+            if (posicionActual < listaTokens.size + 1)
+            {
+                if (listaTokens[posicionActual + 1].categoria != Categoria.OPERADOR_DE_ASIGNACION)
+                {
+                    return null
+                }
+            }
+            obtenerSiguienteToken()
+
+            val operadorAsignacion = esOpAsignacion()
+            if (operadorAsignacion != null)
+            {
+
+                val expresion = esExpresion()
+                if (expresion != null)
+                {
+
+                    if (tokenActual.categoria == Categoria.FIN_SENTENCIA)
+                    {
+                        obtenerSiguienteToken()
+                        // Como todo va bien hasta acá
+                        return SentenciaAsignacion2(nombreVariable, operadorAsignacion, expresion)
+                    }
+                    else
+                    {
+                        reportarError("Es preciso especificar el fin de la sentencia al asignar")
+                    }
+                }
+            }
+            else
+            {
+                reportarError("Después del nombre de la variable va un opAsignación")
+            }
+
+
+        }
+        return null
+    }
+
+    /**
+     * <InvocaciónDeFunción> ::= Identificador “[“[<ListaArgumentos>]”]” "_"
+     */
+    fun esInvocacionDeFuncion(): SentenciaInvocacionFuncion2?
+    {
+        if (tokenActual.categoria == Categoria.IDENTIFICADOR)
+        {
+            val nombreFuncion = tokenActual
+            obtenerSiguienteToken()
+            if (tokenActual.categoria == Categoria.PARENTESIS_ABRIR)
+            {
+                obtenerSiguienteToken()
+                val argumentos: ArrayList<Expresion2> = esListaArgumentos()
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!EXPRESION CORRECTA!!!!!!!!!!!!!!!1111!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR)
+                {
+                    obtenerSiguienteToken()
+                    if (tokenActual.categoria == Categoria.FIN_SENTENCIA)
+                    {
+                        obtenerSiguienteToken()
+                        return SentenciaInvocacionFuncion2(nombreFuncion, argumentos)
+                    }
+                    else
+                    {
+                        reportarError("Falta fin de sentencia")
+                    }
+                }
+                else
+                {
+                    reportarError("Falta paréntesis derecho")
+                }
+            }
+            else
+            {
+                if (tokenActual.categoria != Categoria.OPERADOR_DE_ASIGNACION)
+                {
+                    reportarError("Falta paréntesis izquierdo")
+                }
+
+            }
+        }
+        return null
+
+    }
+
+    /**
+     * <ListaArgumentos> ::= <Expresión> | <Expresión> ";" <ListaArgumentos>
+     */
+    fun esListaArgumentos(): ArrayList<Expresion2>
+    {
+        val listaExpresiones = ArrayList<Expresion2>()
+        var expresion = esExpresion()
+
+        if (expresion != null)
+        {
+            listaExpresiones.add(expresion)
+
+            while (tokenActual.lexema == ";" || tokenActual.categoria == Categoria.SEPARADOR)
+            {
+                obtenerSiguienteToken()
+
+                expresion = esExpresion()
+                if (expresion != null)
+                {
+                    listaExpresiones.add(expresion)
+                }
+                else
+                {
+                    reportarError("El separador únicamente puede estar en medio de dos argumentos")
+                    break
+                }
+            }
+        }
+        return listaExpresiones
+    }
+
+    /**
+     * <Expresión> ::= <ExpresiónAritmética> | <ExpresiónCadena> | <ExpresiónRelacional> | <ExpresiónLógica>
+     */
+    fun esExpresion(): Expresion2?
+    {
+
+        val expresionLogica = esExpresionLogica()
+        if (expresionLogica != null)
+        {
+            //print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!EN LA PUERTA!!!!!!!!!!!!!!!!!!!!!!!!!111")
+            return expresionLogica
+        }
+
+        val expresionRelacional = esExpresionRelacional()
+        if (expresionRelacional != null)
+        {
+            return expresionRelacional
+        }
+
+        val expresionArit = esExpresionAritmetica()
+        if (expresionArit != null)
+        {
+            return expresionArit
+        }
+        val expresionCad = esExpresionCadena()
+        if (expresionCad != null)
+        {
+            return expresionCad
+        }
+
+        return null
+    }
 
 }
