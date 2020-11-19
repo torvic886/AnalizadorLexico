@@ -5,16 +5,16 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="469.0" prefWidth="781.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.compiladores.controladores.InicioController">
+<AnchorPane prefHeight="469.0" prefWidth="1170.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.compiladores.controladores.InicioController">
     <children>
         <Button fx:id="btnLimpiar" layoutX="14.0" layoutY="27.0" mnemonicParsing="false" onAction="#limpiar" prefHeight="25.0" prefWidth="98.0" text="Limpiar" textFill="#2242e0" />
         <Button fx:id="btnAnalizar" layoutX="133.0" layoutY="27.0" mnemonicParsing="false" onAction="#analizar" prefHeight="25.0" prefWidth="98.0" text="Analizar" textFill="#2242e0" />
-        <Label layoutX="433.0" layoutY="43.0" text="Codigo Fuente A Evaluar">
+        <Label layoutX="433.0" layoutY="43.0" prefHeight="17.0" prefWidth="148.0" text="Codigo fuente a evaluar">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <TextArea fx:id="codigoFuente" layoutX="433.0" layoutY="66.0" prefHeight="397.0" prefWidth="333.0" />
+        <TextArea fx:id="codigoFuente" layoutX="433.0" layoutY="66.0" prefHeight="397.0" prefWidth="349.0" />
         <Label layoutX="22.0" layoutY="66.0" text="Resultado Del Analisis Lexico:">
             <font>
                 <Font name="System Bold" size="12.0" />
@@ -52,5 +52,11 @@
          </image>
       </ImageView>
       <Button id="btnAyuda" layoutX="351.0" layoutY="27.0" mnemonicParsing="false" onAction="#generarPDF" text="Ayuda" textFill="#2242e0" />
+        <TreeView fx:id="arbolVisual" layoutX="802.0" layoutY="66.0" prefHeight="397.0" prefWidth="333.0" />
+      <Label layoutX="802.0" layoutY="44.0" text="Árbol sintáctico">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
     </children>
 </AnchorPane>

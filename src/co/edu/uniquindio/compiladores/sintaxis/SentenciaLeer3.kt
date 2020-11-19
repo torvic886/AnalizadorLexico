@@ -1,4 +1,5 @@
 package co.edu.uniquindio.compiladores.sintaxis
 
-class SentenciaImprimir2:Sentencia2() {
+class SentenciaLeer3:Sentencia3() {
+
 }

@@ -2,17 +2,15 @@ package co.edu.uniquindio.compiladores.controladores
 
 import co.edu.uniquindio.compiladores.lexico.AnalizadorLexico
 import co.edu.uniquindio.compiladores.lexico.Token
+import co.edu.uniquindio.compiladores.sintaxis.AnalizadorSintactico6
 import javafx.collections.FXCollections
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
-import javafx.scene.control.TableColumn
-import javafx.scene.control.TableView
-import javafx.scene.control.TextArea
+import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
 import java.awt.Desktop
 import java.io.File
-import java.io.IOException
 import java.net.URL
 import java.util.*
 import javax.swing.JOptionPane
@@ -28,6 +26,7 @@ class InicioController : Initializable
     @FXML lateinit var filaToken: TableColumn<Token, Int>
     @FXML lateinit var columnaToken: TableColumn<Token, Int>
 
+    @FXML lateinit var arbolVisual: TreeView<String>
     @FXML
     fun analizar(e: ActionEvent)
     {
@@ -37,6 +36,23 @@ class InicioController : Initializable
             lexico.analizar()
             tablaTokens.items = FXCollections.observableArrayList(lexico.listaTokens)
             print(lexico.listaTokens)
+
+
+            val sintaxis = AnalizadorSintactico6( lexico.listaTokens )
+            val uc = sintaxis.esUnidadDeCompilacion5()
+            print(uc)
+            if (uc != null) {
+                arbolVisual.root = uc.getArbolVisual()
+            }
+            if (sintaxis.listaErrores.isEmpty()) {
+
+            } else {
+                var alerta = Alert(Alert.AlertType.WARNING)
+                alerta.headerText = "Alerta"
+                alerta.contentText = "Hay errores en el código fuente"
+            }
+
+
         }
         else
         {

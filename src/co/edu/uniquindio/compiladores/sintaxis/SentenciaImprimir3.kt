@@ -1,4 +1,5 @@
 package co.edu.uniquindio.compiladores.sintaxis
 
-open class Expresion2 {
+class SentenciaImprimir3:Sentencia3() {
+
 }

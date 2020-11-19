@@ -39,7 +39,14 @@ class AnalizadorLexico(var codigoFuente: String) {
      * Método que permite almacenar un token previamente validado por alguna categoría, en la lista de los tokens validados
      * @param: lexema (token que se desea almacenar), categoria (categoría de ese token), fila (fila inicial), columna (col inicial)
      */
-    fun almacenarToken(lexema: String, categoria: Categoria, fila: Int, columna: Int) = listaTokens.add(Token(lexema, categoria, fila, columna))
+    fun almacenarToken(lexema: String, categoria: Categoria, fila: Int, columna: Int) {
+        if (categoria != Categoria.NO_RECONOCIDO) {
+            listaTokens.add(Token(lexema, categoria, fila, columna))
+        } else {
+            almacenarTokenErroneo(lexema, categoria, fila, columna)
+        }
+
+    }
 
 
     /**
@@ -1093,6 +1100,42 @@ class AnalizadorLexico(var codigoFuente: String) {
         var columnaInicial = columnaActual  // se captura la columna desde la cual inicia
         var posicionInicial = posicionActual  // se captura la posición desde la cual inicia
 
+        // Verifica pal reservada 'rup' <--> 'break'
+        if (caracterActual == 'n') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'o') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 't') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+
+
+                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                        return true
+                    } else {
+                        hacerBT(posicionInicial, filaInicial, columnaInicial)
+                        return false
+                    }
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+
+
+
+
+
+
         // Pal reservada 'extensive' <--> 'public'
         if (caracterActual == 'e') {
             lexema += caracterActual
@@ -1313,7 +1356,32 @@ class AnalizadorLexico(var codigoFuente: String) {
 
 
                 if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
-                    almacenarToken(lexema, Categoria.NEGACION, filaInicial, columnaInicial)
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                    return true
+                } else {
+                    hacerBT(posicionInicial, filaInicial, columnaInicial)
+                    return false
+                }
+            }
+        }
+
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'do' <--> 'hacer'
+        if (caracterActual == 'd') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'o') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+
+
+                if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                    almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
                     return true
                 } else {
                     hacerBT(posicionInicial, filaInicial, columnaInicial)
@@ -1323,7 +1391,6 @@ class AnalizadorLexico(var codigoFuente: String) {
         }
 
 
-
         hacerBT(posicionInicial, filaInicial, columnaInicial)
         lexema = ""
         filaInicial = filaActual
@@ -1331,7 +1398,7 @@ class AnalizadorLexico(var codigoFuente: String) {
         posicionInicial = posicionActual
 
         // Verifica pal reservada 'conjunto' <--> 'lista'
-        if (caracterActual == 'c') {
+        if (caracterActual == 'C') {
             lexema += caracterActual
             obtenerSiguienteCaracter()
             if (caracterActual == 'o') {
@@ -1558,6 +1625,8 @@ class AnalizadorLexico(var codigoFuente: String) {
 
 
         // se inician las variables desde el punto de inicio, para continual validando
+
+        // se inician las variables desde el punto de inicio, para continual validando
         hacerBT(posicionInicial, filaInicial, columnaInicial)
         lexema = ""
         filaInicial = filaActual
@@ -1572,35 +1641,6 @@ class AnalizadorLexico(var codigoFuente: String) {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
                 if (caracterActual == 's') {
-                    lexema += caracterActual
-                    obtenerSiguienteCaracter()
-
-                    if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
-                        almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
-                        return true
-                    } else {
-                        hacerBT(posicionInicial, filaInicial, columnaInicial)
-                        return false
-                    }
-                }
-            }
-        }
-
-        // se inician las variables desde el punto de inicio, para continual validando
-        hacerBT(posicionInicial, filaInicial, columnaInicial)
-        lexema = ""
-        filaInicial = filaActual
-        columnaInicial = columnaActual
-        posicionInicial = posicionActual
-
-        // Verifica pal reservada 'not' <--> 'false' (en Kotlin)
-        if (caracterActual == 'n') {
-            lexema += caracterActual
-            obtenerSiguienteCaracter()
-            if (caracterActual == 'o') {
-                lexema += caracterActual
-                obtenerSiguienteCaracter()
-                if (caracterActual == 't') {
                     lexema += caracterActual
                     obtenerSiguienteCaracter()
 
@@ -1749,7 +1789,7 @@ class AnalizadorLexico(var codigoFuente: String) {
         posicionInicial = posicionActual
 
         // Verifica pal reservada 'lista' <--> 'list'
-        if (caracterActual == 'l') {
+        if (caracterActual == 'L') {
             lexema += caracterActual
             obtenerSiguienteCaracter()
             if (caracterActual == 'i') {
@@ -1802,6 +1842,49 @@ class AnalizadorLexico(var codigoFuente: String) {
                         lexema += caracterActual
                         obtenerSiguienteCaracter()
                         if (caracterActual == 'k') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+
+
+                            if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                return true
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'until' <--> 'hasta'
+        if (caracterActual == 'u') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'n') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 't') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'i') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'l') {
                             lexema += caracterActual
                             obtenerSiguienteCaracter()
 
@@ -2245,6 +2328,7 @@ class AnalizadorLexico(var codigoFuente: String) {
      */
     fun obtenerSiguienteCaracter() {
         // verifica si se trata del último caracter
+
         if (posicionActual == codigoFuente.length - 1) {
             caracterActual = finCodigo
         } else {

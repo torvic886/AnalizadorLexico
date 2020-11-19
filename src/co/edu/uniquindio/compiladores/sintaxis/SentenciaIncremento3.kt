@@ -1,7 +1,8 @@
 package co.edu.uniquindio.compiladores.sintaxis
 
-class SentenciaIncremento2(var expresionAritmetica: ExpresionAritmetica2):Sentencia2() {
+class SentenciaIncremento3(var expresionAritmetica: ExpresionAritmetica3):Sentencia3() {
     override fun toString(): String {
         return "SentenciaIncremento(expresionAritmetica=$expresionAritmetica)"
     }
+
 }
