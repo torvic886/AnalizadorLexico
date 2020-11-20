@@ -1,6 +1,7 @@
 package co.edu.uniquindio.compiladores.controladores
 
 import co.edu.uniquindio.compiladores.lexico.AnalizadorLexico
+import co.edu.uniquindio.compiladores.lexico.Error
 import co.edu.uniquindio.compiladores.lexico.Token
 import co.edu.uniquindio.compiladores.sintaxis.AnalizadorSintactico6
 import javafx.collections.FXCollections
@@ -26,6 +27,11 @@ class InicioController : Initializable
     @FXML lateinit var filaToken: TableColumn<Token, Int>
     @FXML lateinit var columnaToken: TableColumn<Token, Int>
 
+    @FXML lateinit var tablaErrores: TableView<Error>
+    @FXML lateinit var descripcion: TableColumn<Error, String>
+    @FXML lateinit var filaError: TableColumn<Error, Int>
+    @FXML lateinit var columnaError: TableColumn<Error, Int>
+
     @FXML lateinit var arbolVisual: TreeView<String>
     @FXML
     fun analizar(e: ActionEvent)
@@ -40,6 +46,9 @@ class InicioController : Initializable
 
             val sintaxis = AnalizadorSintactico6( lexico.listaTokens )
             val uc = sintaxis.esUnidadDeCompilacion5()
+            if (!sintaxis.listaErrores.isEmpty()) {
+                tablaErrores.items = FXCollections.observableArrayList(sintaxis.listaErrores)
+            }
             print(uc)
             if (uc != null) {
                 arbolVisual.root = uc.getArbolVisual()

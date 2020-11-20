@@ -44,7 +44,7 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
      * <UnidadDeCompilacion> ::= [<ListaDeclaraciónDeVariables>] <ListaFunciones>
      */
     fun esUnidadDeCompilacion5(): UnidadDeCompilacion3? {
-        val listDecVarInm: ArrayList<SentenciaDeclaracionVariableInmutable3> = esListaDeclaracionVarInmutable()
+        val listDecVarInm: ArrayList<Sentencia3> = esListaDeclaracionVariable()
         val listaFunciones: ArrayList<Funcion3> = esListaFunciones()
 
         if (listaFunciones.size > 0 || listDecVarInm.size > 0) {
@@ -67,13 +67,13 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
         return listaFunciones
     }
 
-    fun esListaDeclaracionVarInmutable(): ArrayList<SentenciaDeclaracionVariableInmutable3> {
-        val listaDecVar = ArrayList<SentenciaDeclaracionVariableInmutable3>()
-        var decVar = esDeclaracionDeVariableInmutable()
+    fun esListaDeclaracionVariable(): ArrayList<Sentencia3> {
+        val listaDecVar = ArrayList<Sentencia3>()
+        var decVar = esDeclaracionVariable()
 
         while (decVar != null) {
             listaDecVar.add(decVar)
-            decVar = esDeclaracionDeVariableInmutable()
+            decVar = esDeclaracionVariable()
         }
         return listaDecVar
     }
@@ -123,7 +123,7 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
 
                                         }
                                     }
-                                    if (centi == false) {
+                                    if (!centi) {
                                         reportarError("La función debe retornar un ${tipoDato.lexema}")
                                     } else {
                                         if (tokenActual.categoria == Categoria.LLAVE_CERRAR) {
@@ -337,17 +337,18 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
             return whereas
         }
 
+        val decConjunto = esDeclaracionConjunto()
+        if (decConjunto != null) {
+            return decConjunto
+        }
+
         val declaracionVariableInmutable = esDeclaracionDeVariableInmutable()
         // Verifica si se trata de la declaración de una variable inmutable
         if (declaracionVariableInmutable != null) {
             return declaracionVariableInmutable
         }
 
-        /*
-        val decConjunto = esDeclaracionConjunto()
-        if (decConjunto != null) {
-            return decConjunto
-        }*/
+
 
         val retorno = esRetorno()
         if (retorno != null) {
@@ -620,6 +621,18 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
         return null
     }
 
+    fun esDeclaracionVariable():Sentencia3? {
+        val sentenciaDecVar = esDeclaracionDeVariableInmutable()
+        if (sentenciaDecVar != null) {
+            return sentenciaDecVar
+        }
+
+        val sentenciaDecCon = esDeclaracionConjunto()
+        if (sentenciaDecCon != null) {
+            return sentenciaDecCon
+        }
+        return null
+    }
     /**
      * <SentenciaDeclaraciónDeVariableInmutable> ::=  <TipoDatoInmutable> “:” <Identificador> "_"
      */
