@@ -1119,60 +1119,66 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
      *  <Factor> ::= “[“<ExpresiónAritmética>”]” | Identificador | <ValorNumérico>
      */
     fun esFactor(): Factor3? {
-        val posicionInicial = posicionActual
+        val posInicial = posicionActual
         if (tokenActual.categoria == Categoria.PARENTESIS_ABRIR) {
             obtenerSiguienteToken()
-            // Verficia si se trata de un identificador
+            val posInicial2 = posicionActual
+
             if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
-                val identificadr = tokenActual
+                val identificador = tokenActual
                 obtenerSiguienteToken()
                 if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR) {
                     obtenerSiguienteToken()
-                    return Factor3(identificadr, null, null)
+                    return Factor3(identificador)
                 } else {
-                    reportarError("Hace falta espe.. paréntesis de cerrar fac")
-                    return null
+                    reportarError("Falta paréntesis de cerrar factor")
                 }
             }
-            // Verifica si se trata de un número
-            val valorNum = esValorNumerico()
+
+            var valorNum = esValorNumerico()
             if (valorNum != null) {
                 if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR) {
                     obtenerSiguienteToken()
-                    return Factor3(null, valorNum, null)
+                    return Factor3(valorNum)
                 } else {
-                    reportarError("Hace falta espe.. paréntesis de cerrar fac")
+                    reportarError("Falta paréntesis de cerrar factor")
                 }
             }
-            val expresionArit = esExpresionAritmetica()
-            if (expresionArit != null) {
+            hacerBT(posInicial2)
+            var expArit = esExpresionAritmetica()
+            if (expArit != null) {
                 if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR) {
                     obtenerSiguienteToken()
-                    return Factor3(null, null, expresionArit)
+                    return Factor3(expArit)
                 } else {
-                    reportarError("Hace falta espe.. paréntesis de cerrar fac")
+                    reportarError("Falta paréntesis de cerrar factor")
                 }
             }
-        } else {
-            if (tokenActual.categoria == Categoria.CADENA_CARACTERES) {
-                return null
-            }
-            // Verficia si se trata de un identificador
-            if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
-                val identificadr = tokenActual
-                obtenerSiguienteToken()
-                return Factor3(identificadr, null, null)
-            }
-            // Verifica si se trata de un número
-            val valorNum = esValorNumerico()
-            if (valorNum != null) {
-                return Factor3(null, valorNum, null)
-            }
-            val expresionArit = esExpresionAritmetica()
-            if (expresionArit != null) {
-                return Factor3(null, null, expresionArit)
-            }
+
+            return null
         }
+
+        print("FFFFFFFFFFFFFFFFFFFFFFACTORRRR VERIFICA IDENTIFICADORRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR")
+        if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
+            val identificador = tokenActual
+            obtenerSiguienteToken()
+            return Factor3(identificador)
+        }
+        print("FFFFFFFFFFFFFFFFFFFFFFACTORRRR VERIFICA VALOR NUMERICOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+
+        var valorNum = esValorNumerico()
+        if (valorNum != null) {
+            return Factor3(valorNum)
+        }
+
+
+        print("FFFFFFFFFFFFFFFFFFFFFFACTORRRR VERIFICA EXPE ARITMETICAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+        var expArit = esExpresionAritmetica()
+        if (expArit != null) {
+            return Factor3(expArit)
+        }
+        print("FFFFFFFFFFFFFFFFFFFFFFACTORRRR RETORNA NULOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+
         return null
     }
 
