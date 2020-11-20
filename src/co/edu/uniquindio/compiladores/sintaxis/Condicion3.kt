@@ -3,8 +3,22 @@ package co.edu.uniquindio.compiladores.sintaxis
 import co.edu.uniquindio.compiladores.lexico.Token
 import javafx.scene.control.TreeItem
 
-class Condicion3(var condicion: Token?, var expRel: ExpresionRelacional3?, var expLo:ExpresionLogica3?, var negacion: Negacion3?)
+class Condicion3()
 {
+    var condicion: Token? = null
+    var expRel: ExpresionRelacional3? = null
+    var expLo:ExpresionLogica3? = null
+    var negacion: Negacion3? = null
+
+    constructor( expresionRel:ExpresionRelacional3):this() {
+        expRel = expresionRel
+    }
+    constructor( expresionLog:ExpresionLogica3):this() {
+        expLo = expresionLog
+    }
+    constructor( booleano:Token):this() {
+        condicion = booleano
+    }
     fun getArbolVisual(): TreeItem<String> {
         var raiz = TreeItem("Condición")
 
