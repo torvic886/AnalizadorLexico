@@ -776,6 +776,11 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
      * <Expresión> ::= <ExpresiónAritmética> | <ExpresiónCadena> | <ExpresiónRelacional> | <ExpresiónLógica>
      */
     fun esExpresion(): Expresion3? {
+        val expresionCad = esExpresionCadena()
+        if (expresionCad != null) {
+            return expresionCad
+        }
+
         val expresionLogica = esExpresionLogica()
         if (expresionLogica != null) {
             return expresionLogica
@@ -790,11 +795,6 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
         if (expresionArit != null) {
             return expresionArit
         }
-        /*
-        val expresionCad = esExpresionCadena()
-        if (expresionCad != null) {
-            return expresionCad
-        }*/
 
 
         return null
@@ -954,46 +954,32 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
     }
 
     /**
-     * <ExpresiónCadena> ::= cadenaDeCaracteres [","<Expresión> ] | <Expresión> “,” cadenaDeCaracteres
+     * <ExpresiónCadena> ::= cadenaDeCaracteres [","<ExpresiónAritmética> ] | <ExpresiónAritmética> “,” cadenaDeCaracteres | cadenaDeCaracteres [","<ExpresionCadena>","]
      */
     fun esExpresionCadena(): ExpresionCadena3? {
         val posicionI = posicionActual
+
         if (tokenActual.categoria == Categoria.CADENA_CARACTERES) {
             val cad = tokenActual
             obtenerSiguienteToken()
-            print("############################ ENTRA CADENA ########################33")
             if (tokenActual.categoria == Categoria.CONCATENADOR || tokenActual.lexema == ",") {
                 obtenerSiguienteToken()
-                val expresion = esExpresion()
-                if (expresion != null) {
-                    print("----------------------------------RECONOCE EXP CAD----------------------------------------------------")
-                    return ExpresionCadena3(cad, expresion)
-                } else {
-                    reportarError("Después de un concatenador sigue una expresión, en este caso")
+                val p = posicionActual
+                var expCadena = esExpresionCadena()
+                if (expCadena != null) {
+                    return ExpresionCadena3(cad, expCadena)
+                }
+                hacerBT(p)
+                var exp = esExpresionAritmetica()
+                if (exp != null) {
+                    return ExpresionCadena3(cad, exp)
                 }
 
+                reportarError("Una expresión cadena no puede terminar en cun concatenador")
             }
-            print("############################ CASI RETORNA ########################33")
-            return ExpresionCadena3(cad, null)
+            return  ExpresionCadena3(cad)
         }
-        val expresion = esExpresion()
-        if (expresion != null) {
-            if (tokenActual.categoria == Categoria.CONCATENADOR || tokenActual.lexema == ",") {
-                obtenerSiguienteToken()
-                if (tokenActual.categoria == Categoria.CADENA_CARACTERES) {
-                    obtenerSiguienteToken()
-                    val cad = tokenActual
-                    return ExpresionCadena3(cad, expresion)
-                } else {
-                    reportarError("Después de un concatenador sigue una cadena, en este caso")
-                }
-            } else {
-                reportarError("Falta la cadena de caract..")
-                hacerBT(posicionI)
 
-            }
-
-        }
         return null
     }
 
@@ -1116,7 +1102,7 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
     }
 
     /**
-     *  <Factor> ::= “[“<ExpresiónAritmética>”]” | Identificador | <ValorNumérico>
+     *  <Factor> ::= ["[“]<ExpresiónAritmética>[”]”] | ["["]Identificador["]"] | ["["]<ValorNumérico> ["]"]
      */
     fun esFactor(): Factor3? {
         val posInicial = posicionActual
@@ -1187,6 +1173,7 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
      * <ValorNumérico> ::= <Entero> | <Decimal> | <EnteroCorto> | <EnteroLargo> | <DecimalCorto> | <DecimalLargo>
      */
     fun esValorNumerico(): ValorNumerico3? {
+
         if (tokenActual.categoria == Categoria.ENTERO || tokenActual.categoria == Categoria.DECIMAL
                 || tokenActual.categoria == Categoria.ENTERO_CORTO || tokenActual.categoria == Categoria.ENTERO_LARGO
                 || tokenActual.categoria == Categoria.DECIMAL_LARGO || tokenActual.categoria == Categoria.DECIMAL_CORTO) {
