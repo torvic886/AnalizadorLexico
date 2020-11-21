@@ -313,6 +313,10 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
     <SentenciaLeer>
      */
     fun esSentencia(): Sentencia3? {
+        val inicializacionConjunto = esInicializacionConjunto()
+        if (inicializacionConjunto != null) {
+            return inicializacionConjunto
+        }
 
         val asignacion = esAsignacion()
         if (asignacion != null) {
@@ -348,12 +352,20 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
             return declaracionVariableInmutable
         }
 
-
-
         val retorno = esRetorno()
         if (retorno != null) {
             return retorno
         }
+
+        val imprimir = esImprimir()
+        if (imprimir != null) {
+            return imprimir
+        }
+        val leer = esLeer()
+        if (leer != null) {
+            return leer
+        }
+
         /*
         val incremento = esIncremento()
         if (incremento != null) {
@@ -363,14 +375,6 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
         val decremento = esDecremento()
         if (decremento != null) {
             return decremento
-        }
-        val imprimir = esImprimir()
-        if (imprimir != null) {
-            return imprimir
-        }
-        val leer = esLeer()
-        if (leer != null) {
-            return null
         }*/
         return null
     }
@@ -417,9 +421,128 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
         return null
     }
 
+    /**
+     * <SentenciaImprimir> ::= msg ”[“ [<ExpresiónCadena>] ”]” finSente | msg ”[“ [ identificador ] ”]” finSente
+     */
     fun esImprimir(): SentenciaImprimir3? {
+        val posI = posicionActual
+        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && tokenActual.lexema == "msg") {
+            obtenerSiguienteToken()
+            if (tokenActual.categoria == Categoria.PARENTESIS_ABRIR) {
+                obtenerSiguienteToken()
+                if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
+                    val identificador = tokenActual
+                    obtenerSiguienteToken()
+                    if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR) {
+                        obtenerSiguienteToken()
+                        if (tokenActual.categoria == Categoria.FIN_SENTENCIA || tokenActual.lexema == "_") {
+                            obtenerSiguienteToken()
+                            return SentenciaImprimir3(identificador)
+                        } else {
+                            reportarError("Falta fin de sentencia en sentencia imprimir")
+                        }
+                    } else {
+                        reportarError("Falta paréntesis de cerrar sentencia imprimir")
+                    }
+                }
+                val expCad = esExpresionCadena()
+                if (expCad != null) {
+                    if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR) {
+                        obtenerSiguienteToken()
+                        if (tokenActual.categoria == Categoria.FIN_SENTENCIA || tokenActual.lexema == "_") {
+                            obtenerSiguienteToken()
+                            return SentenciaImprimir3(expCad)
+                        } else {
+                            reportarError("Falta fin de sentencia en sentencia imprimir")
+                        }
+                    } else {
+                        reportarError("Falta paréntesis de cerrar sentencia imprimir")
+                    }
+                }
+            } else {
+                reportarError("Falta paréntesis de abir sentencia imprimir")
+            }
+        }
+        hacerBT(posI)
         return null
     }
+
+
+    /**
+     * <InicializaciónConjunto> ::= Identificador "@" TipoDatoNumérico ":" "{" [<ValoresNumericos>] "}" "_"
+     * <ValoresNumericos> ::= ValorNumérico "," <ValoresNumericos> | ValorNumérico
+     */
+    fun esInicializacionConjunto(): SentenciaInicializacionConjunto3? {
+        val posI = posicionActual
+        if (tokenActual.categoria == Categoria.CORCHETE_ABRIR) {
+            obtenerSiguienteToken()
+            if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
+                val identificador = tokenActual
+                obtenerSiguienteToken()
+                if (tokenActual.categoria == Categoria.OPERADOR_DE_ASIGNACION && tokenActual.lexema == "@") {
+                    obtenerSiguienteToken()
+                    val tipoDato = esTipoDato()
+                    if (tipoDato != null && (tipoDato.lexema != "cad" || tipoDato.lexema != "atm" || tipoDato.lexema != "centi")) {
+                        obtenerSiguienteToken()
+                        if (tokenActual.categoria == Categoria.DOS_PUNTOS) {
+                            obtenerSiguienteToken()
+                            if (tokenActual.categoria == Categoria.CORCHETE_ABRIR) {
+                                obtenerSiguienteToken()
+                                val valoresNumericos = esListaValoresNumericos()
+                                if (tokenActual.categoria == Categoria.CORCHETE_CERRAR) {
+                                    obtenerSiguienteToken()
+                                    if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+                                        obtenerSiguienteToken()
+                                        return SentenciaInicializacionConjunto3(identificador, valoresNumericos)
+                                    } else {
+                                        reportarError("Falta especificar fin de sentencia en ini.. de con..")
+                                    }
+                                } else {
+                                    reportarError("Falta especificar corchete de cerrar en ini.. de con..")
+                                }
+                            } else {
+                                reportarError("Falta especificar corchete de abrir en ini.. de con..")
+                            }
+                        } else {
+                            reportarError("Falta especificar ':' después del tipo de dato")
+                        }
+                    } else {
+                        hacerBT(posI)
+                        return null
+                    }
+                } else {
+                    hacerBT(posI)
+                }
+            }
+        }
+        return null
+    }
+
+    /**
+     * <ValoresNumericos> ::= ValorNumérico "," <ValoresNumericos> | ValorNumérico
+     */
+    fun esListaValoresNumericos(): ArrayList<ValorNumerico3> {
+        val listaValoresNum = ArrayList<ValorNumerico3>()
+        var valorNumerico = esValorNumerico()
+
+        if (valorNumerico != null) {
+            listaValoresNum.add(valorNumerico)
+
+            while (tokenActual.categoria == Categoria.SEPARADOR) {
+                obtenerSiguienteToken()
+
+                valorNumerico = esValorNumerico()
+                if (valorNumerico != null) {
+                    listaValoresNum.add(valorNumerico)
+                } else {
+                    reportarError("Lista de valores numéricos no puede terminar en un separador")
+                    break
+                }
+            }
+        }
+        return listaValoresNum
+    }
+
 
     /**
      * <Condición> ::= no ["["]<Condición> ["]"] | ["["]<ExpresiónRelacional> ["]"] | ["["]<ExpresiónLógica> ["]"] | ["["] yes ["]"] | ["["] not ["]"]
@@ -480,6 +603,8 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
 
         return null
     }
+
+
 
     /**
      *  <SentenciaChek> ::= chek <Condición> “-“ “-“ “>” [<ListaSentencias>] “<” “-” “-” [other “-“ “-“ “>” [<ListaSentencias>] “<” “-“ “-“]
@@ -796,7 +921,6 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
             return expresionArit
         }
 
-
         return null
     }
 
@@ -957,31 +1081,30 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
      * <ExpresiónCadena> ::= cadenaDeCaracteres [","<ExpresiónAritmética> ] | <ExpresiónAritmética> “,” cadenaDeCaracteres | cadenaDeCaracteres [","<ExpresionCadena>","]
      */
     fun esExpresionCadena(): ExpresionCadena3? {
-        val posicionI = posicionActual
-
         if (tokenActual.categoria == Categoria.CADENA_CARACTERES) {
             val cad = tokenActual
             obtenerSiguienteToken()
             if (tokenActual.categoria == Categoria.CONCATENADOR || tokenActual.lexema == ",") {
                 obtenerSiguienteToken()
                 val p = posicionActual
-                var expCadena = esExpresionCadena()
+                val expCadena = esExpresionCadena()
                 if (expCadena != null) {
                     return ExpresionCadena3(cad, expCadena)
                 }
                 hacerBT(p)
-                var exp = esExpresionAritmetica()
+                val exp = esExpresionAritmetica()
                 if (exp != null) {
                     return ExpresionCadena3(cad, exp)
                 }
 
                 reportarError("Una expresión cadena no puede terminar en cun concatenador")
             }
-            return  ExpresionCadena3(cad)
+            return ExpresionCadena3(cad)
         }
 
         return null
     }
+
 
     /**
      * <ExpresiónAritmética> ::= <ExpresiónAritmética> opAritmético <Término> |  "["<ExpresiónAritmética>"]" |<Término>
@@ -1102,7 +1225,7 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
     }
 
     /**
-     *  <Factor> ::= ["[“]<ExpresiónAritmética>[”]”] | ["["]Identificador["]"] | ["["]<ValorNumérico> ["]"]
+     *  <Factor> ::= “[“<ExpresiónAritmética>”]” | Identificador | <ValorNumérico>
      */
     fun esFactor(): Factor3? {
         val posInicial = posicionActual
@@ -1173,7 +1296,6 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
      * <ValorNumérico> ::= <Entero> | <Decimal> | <EnteroCorto> | <EnteroLargo> | <DecimalCorto> | <DecimalLargo>
      */
     fun esValorNumerico(): ValorNumerico3? {
-
         if (tokenActual.categoria == Categoria.ENTERO || tokenActual.categoria == Categoria.DECIMAL
                 || tokenActual.categoria == Categoria.ENTERO_CORTO || tokenActual.categoria == Categoria.ENTERO_LARGO
                 || tokenActual.categoria == Categoria.DECIMAL_LARGO || tokenActual.categoria == Categoria.DECIMAL_CORTO) {
