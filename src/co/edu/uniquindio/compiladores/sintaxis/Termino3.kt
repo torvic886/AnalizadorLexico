@@ -31,7 +31,25 @@ open class Termino3(){
 
     fun getArbolVisual(): TreeItem<String> {
         var raiz = TreeItem("Términos")
-
+        if (operador != null) {
+            var raizOp = TreeItem("Operador: ${operador!!.lexema}")
+            if (factor1 != null &&factor2 != null) {
+                raizOp.children.add(factor1!!.getArbolVisual())
+                raizOp.children.add(factor2!!.getArbolVisual())
+            }
+            if (termino != null && factor1 != null) {
+                raizOp.children.add(termino!!.getArbolVisual())
+                raizOp.children.add(factor1!!.getArbolVisual())
+            }
+            raiz.children.add(raizOp)
+            return raiz
+        }
+        if (termino!= null ) {
+            raiz.children.add(termino!!.getArbolVisual())
+        }
+        if (factor1!= null ) {
+            raiz.children.add(factor1!!.getArbolVisual())
+        }
         return raiz
     }
 

@@ -5,18 +5,20 @@ import co.edu.uniquindio.compiladores.lexico.Categoria
 import co.edu.uniquindio.compiladores.lexico.Error
 import co.edu.uniquindio.compiladores.lexico.Token
 
-class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
+class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
+{
 
     var posicionActual = 0
     var tokenActual = listaTokens[0]
-    val listaErrores = ArrayList<Error>()
+    val listaErrores = ArrayList<Error>()//aca
 
     /**
      * Método que permite volver a un punto determindado, para descartar una posibilidad, y volver a intentar desde
      * ese mismo punto para validar otra categoría sintáctica
      * @param: posicionInicial (posición a la cual se desea volver)
      */
-    fun hacerBT(posicionInicial: Int) {
+    fun hacerBT(posicionInicial: Int)
+    {
         posicionActual = posicionInicial
         tokenActual = listaTokens[posicionActual]
     }
@@ -24,9 +26,11 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
     /**
      * Método que obtiene, si es posible, el token siguiente en la lista principal
      */
-    fun obtenerSiguienteToken() {
+    fun obtenerSiguienteToken()
+    {
         posicionActual++
-        if (posicionActual < listaTokens.size) {
+        if (posicionActual < listaTokens.size)
+        {
             tokenActual = listaTokens[posicionActual]
         }
     }
@@ -35,8 +39,10 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
      * Método que reporta un error de sintaxis
      * @param: mensaje cuyo objetivo es informar del error
      */
-    fun reportarError(mensaje: String) {
+    fun reportarError(mensaje: String)
+    {
         listaErrores.add(Error(mensaje, tokenActual.fila, tokenActual.columna))
+
 
     }
 
@@ -362,7 +368,8 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
             return imprimir
         }
         val leer = esLeer()
-        if (leer != null) {
+        if (leer != null)
+        {
             return leer
         }
 
@@ -379,7 +386,58 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
         return null
     }
 
+    /**
+     *  <Leer> ::= Consultar ”[“ [cadenaDeCaracteres ","] Identificador " ”]” finSente
+     */
     fun esLeer(): SentenciaLeer3? {
+        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && tokenActual.lexema == "Consultar") {
+            obtenerSiguienteToken()
+            if (tokenActual.categoria == Categoria.PARENTESIS_ABRIR) {
+                obtenerSiguienteToken()
+                if (tokenActual.categoria == Categoria.CADENA_CARACTERES) {
+                    val cad = tokenActual
+                    obtenerSiguienteToken()
+                    if (tokenActual.categoria == Categoria.CONCATENADOR || tokenActual.lexema == ",") {
+                        obtenerSiguienteToken()
+                        if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
+                            val identificador = tokenActual
+                            obtenerSiguienteToken()
+                            if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR) {
+                                obtenerSiguienteToken()
+                                if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+                                    obtenerSiguienteToken()
+                                    return SentenciaLeer3(cad, identificador)
+                                } else {
+                                    reportarError("Falta fin de sentencia en sentenica Consultar")
+                                }
+                            } else {
+                                reportarError("Falta paréntesis de cerrar en sentencia Consultar")
+                            }
+                        } else {
+                            reportarError("La sentencia leer no puede terminiar en un ','")
+                        }
+                    } else {
+                        reportarError("La sentencia leer no puede terminiar en un ','")
+                    }
+                }
+                if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
+                    val identificador = tokenActual
+                    obtenerSiguienteToken()
+                    if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR) {
+                        obtenerSiguienteToken()
+                        if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+                            obtenerSiguienteToken()
+                            return SentenciaLeer3(identificador)
+                        } else {
+                            reportarError("Hace falta fin de sentencia en la sentencia leer")
+                        }
+                    } else {
+                        reportarError("Hace falta paréntesis de cerrar sentencia leer")
+                    }
+                }
+            }
+
+        }
         return null
     }
 

@@ -29,11 +29,33 @@ open class ExpresionAritmetica3():Expresion3()
     override fun getArbolVisual(): TreeItem<String> {
         var raiz = TreeItem("Expresión Aritmética")
 
-
-
+        if (operador != null) {
+            val raizOperador = TreeItem("Operador: ${operador!!.lexema}")
+            if (termino != null && termino2 != null) {
+                raizOperador.children.add(termino!!.getArbolVisual())
+                raizOperador.children.add(termino2!!.getArbolVisual())
+            }
+            if (expArit1 != null && termino != null) {
+                raizOperador.children.add(expArit1!!.getArbolVisual())
+                raizOperador.children.add(termino!!.getArbolVisual())
+            }
+            raiz.children.add(raizOperador)
+            return raiz
+        }
+        if (expArit1 != null) {
+            raiz.children.add(expArit1!!.getArbolVisual())
+            return raiz
+        }
+        if (termino != null) {
+            raiz.children.add(termino!!.getArbolVisual())
+            return raiz
+        }
+        if (termino2 != null) {
+            raiz.children.add(termino2!!.getArbolVisual())
+            return raiz
+        }
         return raiz
     }
-
     override fun toString(): String {
         return "ExpresionAritmetica3(expArit1=$expArit1, termino=$termino, termino2=$termino2, operador=$operador)"
     }

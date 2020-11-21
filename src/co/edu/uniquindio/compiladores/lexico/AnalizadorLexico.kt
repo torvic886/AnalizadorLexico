@@ -7,7 +7,8 @@ package co.edu.uniquindio.compiladores.lexico
  * Versión en desarrollo: 1.0
  * Profesor: Carlos Andres Flores V.
  */
-class AnalizadorLexico(var codigoFuente: String) {
+class AnalizadorLexico(var codigoFuente: String)
+{
 
     var caracterActual = codigoFuente[0]  //se captura el primer caracter de la cadena que entra por parámetro
     var listaTokens = ArrayList<Token>()  //se declara una lista para almacenar los tokens válidos
@@ -22,7 +23,8 @@ class AnalizadorLexico(var codigoFuente: String) {
      * ese mismo punto para validar otra categoría
      * @param: posicionInicial (posición a la cual se desea volver), filaInicial (fila la cual se desea volver), columnaInicial (col a la cual se desea volver)
      */
-    fun hacerBT(posicionInicial: Int, filaInicial: Int, columnaInicial: Int) {
+    fun hacerBT(posicionInicial: Int, filaInicial: Int, columnaInicial: Int)
+    {
         filaActual = filaInicial
         columnaActual = columnaInicial
         posicionActual = posicionInicial
@@ -39,10 +41,14 @@ class AnalizadorLexico(var codigoFuente: String) {
      * Método que permite almacenar un token previamente validado por alguna categoría, en la lista de los tokens validados
      * @param: lexema (token que se desea almacenar), categoria (categoría de ese token), fila (fila inicial), columna (col inicial)
      */
-    fun almacenarToken(lexema: String, categoria: Categoria, fila: Int, columna: Int) {
-        if (categoria != Categoria.NO_RECONOCIDO) {
+    fun almacenarToken(lexema: String, categoria: Categoria, fila: Int, columna: Int)
+    {
+        if (categoria != Categoria.NO_RECONOCIDO)
+        {
             listaTokens.add(Token(lexema, categoria, fila, columna))
-        } else {
+        }
+        else
+        {
             almacenarTokenErroneo(lexema, categoria, fila, columna)
         }
 
@@ -52,9 +58,12 @@ class AnalizadorLexico(var codigoFuente: String) {
     /**
      * Método que permite validar los token por categorías, una por una hasta hallar la indicada
      */
-    fun analizar() {
-        while (caracterActual != finCodigo) {
-            while (caracterActual == ' ') {
+    fun analizar()
+    {
+        while (caracterActual != finCodigo)
+        {
+            while (caracterActual == ' ')
+            {
                 obtenerSiguienteCaracter()
             }
 

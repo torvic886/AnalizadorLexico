@@ -14,6 +14,12 @@ class SentenciaImprimir3():Sentencia3() {
     }
     override  fun getArbolVisual(): TreeItem<String> {
         var raiz = TreeItem("Sentencia Imprimir")
+        if (expCad != null) {
+            raiz.children.add(expCad!!.getArbolVisual())
+        }
+        if (identificador != null) {
+            raiz.children.add(TreeItem("Identificador: ${identificador!!.lexema}"))
+        }
         return raiz
     }
 }

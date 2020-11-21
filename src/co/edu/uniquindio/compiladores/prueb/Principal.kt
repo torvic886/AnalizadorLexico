@@ -10,6 +10,7 @@ fun main() {
                     "entero: cantidad_"+
                     "mtd is entero suma [entero:b; entero: b]" +
                     "-->" +
+
                     "{ lista @ entero: {$10,0_c; $101,0_c; $20,0_c}_"+
                     "Consultar[a]_"+
                     "sdasd[|cadena|, a <+> b]_"+

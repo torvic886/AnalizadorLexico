@@ -29,7 +29,15 @@ class ExpresionCadena3():Expresion3() {
 
     override fun getArbolVisual(): TreeItem<String> {
         var raiz = TreeItem("Expresión Cadena")
-
+        if (cadena != null) {
+            raiz.children.add(TreeItem("Cadena: ${cadena!!.lexema}"))
+        }
+        if (expresionCadena != null) {
+            raiz.children.add(expresionCadena!!.getArbolVisual())
+        }
+        if (expresionA != null) {
+            raiz.children.add(expresionCadena!!.getArbolVisual())
+        }
         return raiz
     }
 
