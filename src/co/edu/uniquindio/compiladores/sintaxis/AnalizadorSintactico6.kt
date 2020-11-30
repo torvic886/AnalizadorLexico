@@ -384,39 +384,13 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
     }
 
     /**
-     *  <Leer> ::= Consultar ”[“ [cadenaDeCaracteres ","] Identificador " ”]” finSente
+     *  <Leer> ::= Consultar ”[“ Identificador ”]” finSente
      */
     fun esLeer(): SentenciaLeer3? {
         if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && tokenActual.lexema == "Consultar") {
             obtenerSiguienteToken()
             if (tokenActual.categoria == Categoria.PARENTESIS_ABRIR) {
                 obtenerSiguienteToken()
-                if (tokenActual.categoria == Categoria.CADENA_CARACTERES) {
-                    val cad = tokenActual
-                    obtenerSiguienteToken()
-                    if (tokenActual.categoria == Categoria.CONCATENADOR || tokenActual.lexema == ",") {
-                        obtenerSiguienteToken()
-                        if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
-                            val identificador = tokenActual
-                            obtenerSiguienteToken()
-                            if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR) {
-                                obtenerSiguienteToken()
-                                if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
-                                    obtenerSiguienteToken()
-                                    return SentenciaLeer3(cad, identificador)
-                                } else {
-                                    reportarError("Falta fin de sentencia en sentenica Consultar")
-                                }
-                            } else {
-                                reportarError("Falta paréntesis de cerrar en sentencia Consultar")
-                            }
-                        } else {
-                            reportarError("La sentencia leer no puede terminiar en un ','")
-                        }
-                    } else {
-                        reportarError("La sentencia leer no puede terminiar en un ','")
-                    }
-                }
                 if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
                     val identificador = tokenActual
                     obtenerSiguienteToken()
@@ -433,7 +407,6 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
                     }
                 }
             }
-
         }
         return null
     }
@@ -521,9 +494,52 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
         hacerBT(posI)
         return null
     }
+    /**
+     * <DeclaraciónConjunto> ::=  Conjunto is tipoDato “:” <Identificador> "_"
+     */
+    fun esDeclaracionConjunto(): SentenciaDeclaracionArreglo3? {
+        val posInicial = posicionActual
+        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && tokenActual.lexema == "Conjunto") {
+            obtenerSiguienteToken()
+            if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && tokenActual.lexema == "is") {
+                obtenerSiguienteToken()
+                val tipoDato = esTipoDato()
+                if (tipoDato != null) {
+                    obtenerSiguienteToken()
+                    if (tokenActual.categoria == Categoria.DOS_PUNTOS) {
+                        obtenerSiguienteToken()
+                        if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
+                            val nombreVar = tokenActual
+                            obtenerSiguienteToken()
+                            if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+                                obtenerSiguienteToken()
+                                // Como todo bien, entonces
+                                return SentenciaDeclaracionArreglo3(tipoDato, nombreVar)
+                            } else {
+                                reportarError("Es preciso especificar el '_' al terminar de declarar la var..")
+                            }
+                        } else {
+                            reportarError("Debe especificar el nombre de la variable")
+                        }
+                    } else {
+                        reportarError("Es preciso especificar ':' después de definir el tipo de dato")
+                    }
+                } else {
+                    reportarError("Hace falta especificar tipo de dato")
+                    hacerBT(posInicial)
+                }
+            } else {
+                reportarError("Después de Conjunto debe seguir la pal.. 'de'")
+            }
+        }
 
+        return null
+    }
 
     /**
+     * <Arreglo> ::= Conjunto is TipoDato: Identificador "@" "{" [<ListaArgumentos>] "}" "_"
+     *
+     *
      * <InicializaciónConjunto> ::= Identificador "@" TipoDatoNumérico ":" "{" [<ValoresNumericos>] "}" "_"
      * <ValoresNumericos> ::= ValorNumérico "," <ValoresNumericos> | ValorNumérico
      */
@@ -690,7 +706,7 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
                                     obtenerSiguienteToken()
 
                                     // Como todo bien, entonces:
-                                    return SentenciaChek3(condicion, bloqueSentencias, Other3(bloqueSentenciasOther))
+                                    return SentenciaChek3(condicion, bloqueSentencias, bloqueSentenciasOther)
                                 } else {
                                     reportarError("Hace falta llave cerrar del 'other'")
                                 }
@@ -794,51 +810,6 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
 
         return null
     }
-
-
-    /**
-     * <DeclaraciónConjunto> ::=  Conjunto de tipoDato “:” <Identificador> "_"
-     */
-    fun esDeclaracionConjunto(): SentenciaDeclaracionArreglo3? {
-        val posInicial = posicionActual
-        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && tokenActual.lexema == "Conjunto") {
-            obtenerSiguienteToken()
-            if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && tokenActual.lexema == "is") {
-                obtenerSiguienteToken()
-                val tipoDato = esTipoDato()
-                if (tipoDato != null) {
-                    obtenerSiguienteToken()
-                    if (tokenActual.categoria == Categoria.DOS_PUNTOS) {
-                        obtenerSiguienteToken()
-                        if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
-                            val nombreVar = tokenActual
-                            obtenerSiguienteToken()
-                            if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
-                                obtenerSiguienteToken()
-                                // Como todo bien, entonces
-                                return SentenciaDeclaracionArreglo3(tipoDato, nombreVar)
-                            } else {
-                                reportarError("Es preciso especificar el '_' al terminar de declarar la var..")
-                            }
-                        } else {
-                            reportarError("Debe especificar el nombre de la variable")
-                        }
-                    } else {
-                        reportarError("Es preciso especificar ':' después de definir el tipo de dato")
-                    }
-                } else {
-                    reportarError("Hace falta especificar tipo de dato")
-                    hacerBT(posInicial)
-                }
-            } else {
-                reportarError("Después de Conjunto debe seguir la pal.. 'de'")
-            }
-        }
-
-        return null
-    }
-
-
 
     /**
      * <SentenciaDeRetorno> ::= dev <Expresión> "_"

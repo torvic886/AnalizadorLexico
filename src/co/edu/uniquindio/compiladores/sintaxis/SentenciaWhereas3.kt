@@ -1,5 +1,7 @@
 package co.edu.uniquindio.compiladores.sintaxis
 
+import co.edu.uniquindio.compiladores.lexico.Error
+import co.edu.uniquindio.compiladores.semantica.TablaSimbolos
 import javafx.scene.control.TreeItem
 
 class SentenciaWhereas3(var condicion: Condicion3, var sentencias: ArrayList<Sentencia3>):Sentencia3(){
@@ -17,5 +19,10 @@ class SentenciaWhereas3(var condicion: Condicion3, var sentencias: ArrayList<Sen
             }
         }
         return raiz
+    }
+    override fun llenarTablaSimbolos(tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error>, ambito: String ) {
+        for ( s in sentencias ) {
+            s.llenarTablaSimbolos(tablaSimbolos, listaErrores, ambito)
+        }
     }
 }

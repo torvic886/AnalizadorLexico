@@ -45,6 +45,16 @@ class Funcion3(var nombreFuncion: Token, var tipoRetorno:Token, var listaParamet
 
         }*/
         tablaSimbolos.guardarSimboloFuncion(nombreFuncion.lexema, tipoRetorno.lexema, obtenerTiposParametros(), ambito, nombreFuncion.fila, nombreFuncion.columna )
-
+        for ( p in listaParametros ) {
+            tablaSimbolos.guardarSimboloValor( p.nombreParametro.lexema, p.tipoDato.lexema, true, nombreFuncion.lexema, p.nombreParametro.fila, p.nombreParametro.columna )
+        }
+        for ( s in bloqueSentencias ) {
+            s.llenarTablaSimbolos( tablaSimbolos, listaErrores, nombreFuncion.lexema )
+        }
+    }
+    fun analizarSemantica( tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error> ) {
+        for ( s in bloqueSentencias ) {
+            s.analizarSemantica( tablaSimbolos, listaErrores, nombreFuncion.lexema )
+        }
     }
 }

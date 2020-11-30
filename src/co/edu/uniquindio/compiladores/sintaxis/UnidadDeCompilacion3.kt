@@ -27,6 +27,8 @@ class UnidadDeCompilacion3(var listaDeclVar:ArrayList<Sentencia3>, var listaFunc
         }
     }
     fun analizarSemantica( tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error> ) {
-
+        for ( f in listaFunciones ) {
+            f.analizarSemantica( tablaSimbolos, listaErrores )
+        }
     }
 }

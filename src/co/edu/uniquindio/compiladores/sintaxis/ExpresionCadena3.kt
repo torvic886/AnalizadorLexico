@@ -21,6 +21,10 @@ class ExpresionCadena3():Expresion3() {
         this.expresionA = expresionA
         this.cadena = cadena
     }
+    constructor(expresionA:ExpresionAritmetica3, expresionCadena: ExpresionCadena3):this() {
+        this.expresionA = expresionA
+        this.expresionCadena = expresionCadena
+    }
 
     constructor(cadena:Token, expresionCadena: ExpresionCadena3):this() {
         this.cadena = cadena
@@ -41,9 +45,9 @@ class ExpresionCadena3():Expresion3() {
         return raiz
     }
 
-
     override fun toString(): String {
-        return "ExpresionCadena3(cadena=$cadena, expresion=$expresionA)"
+        return "ExpresionCadena3(cadena=$cadena, expresionA=$expresionA, expresionCadena=$expresionCadena)"
     }
+
 
 }
