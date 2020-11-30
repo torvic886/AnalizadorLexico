@@ -5,31 +5,41 @@ import co.edu.uniquindio.compiladores.sintaxis.AnalizadorSintactico6
 
 fun main() {
     val a = AnalizadorLexico(
-            "cad: cadena_ " +
-                    "Conjunto is entero: arreglo_"+
+            "" +
+                    "cad: cadena_ " +
+                    "Conjunto is entero: listaV_"+
                     "entero: cantidad_"+
-                    "mtd is entero suma [entero:b; entero: b]" +
+                    "mtd is dec conRetorno [entero: a; entero: b]" +
                     "-->" +
 
-                    "{ lista @ entero: {$10,0_c; $101,0_c; $20,0_c}_"+
-                    "Consultar[a]_"+
-                    "sdasd[|cadena|, a <+> b]_"+
-                    "msg[|cadena|, a <+> b]_"+
+                    "{ listaV @ entero: {$10,0_c; $101,0_c; $20,0_c}_"+
+                    "Consultar[|Digite valor de: |, listaV]_"+
+                    "invocacion2[|cadena|, a <+> b]_"+
+                    "msg[|La suma de a y b, es: |, a <+> b]_"+
                     "suma @ a <+> b_"+
                     "invocacion[[[a<*>b ?? a<*>b] AND [a<*>b ?? a<*>b]]]_" +
-                    "check [a <? b]" +
+                    "entero:resul_"+
+                    "check [a <? $10]" +
                     "-->" +
+                        "msg[|a es menor o igual aún |]_"+
                     "<-- other -->" +
-                    "entero:a_"+
-                    "a @ $12_"+
+                    "resul @ $12_"+
                     "<--" +
 
-                    "whereas [a<*>$10 ?? b] do -->"+
+                    "whereas [resul<*>$10 ?? b] do -->"+
+                        "resul @- resul <+> $2_"+
                     "<--"+
 
-                    "dev a_"+
+                    "dev resul_"+
+                    "<--"+
 
-                    "<--")
+                    "mtd sinRetorno []" +
+                    "-->" +
+
+
+                    "<--"
+
+    )
     a.analizar()
     print(a.listaTokens)
     print("")

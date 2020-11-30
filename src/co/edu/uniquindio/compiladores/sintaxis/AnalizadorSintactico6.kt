@@ -122,11 +122,8 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
                                     val bloqueSentencias = esBloqueDeSentencia() //
                                     var centi = false
                                     for (i in bloqueSentencias) {
-                                        print("--------------------------------------------- SENTENCIA- ----- - - -> ")
-                                        print(i)
                                         if (i is SentenciaRetorno3) {
                                             centi = true
-
                                         }
                                     }
                                     if (!centi) {
@@ -613,6 +610,15 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
                 obtenerSiguienteToken()
                 return esCondicion()
             }
+            if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && (tokenActual.lexema == "yes" || tokenActual.lexema == "not")) {
+                obtenerSiguienteToken()
+                if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR) {
+                    obtenerSiguienteToken()
+                    return Condicion3(tokenActual)
+                } else {
+                    reportarError("Hace falta paréntesis de cerrar condición")
+                }
+            }
             var expRel = esExpresionRelacional()
             if (expRel != null) {
                 if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR) {
@@ -631,19 +637,15 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
                     reportarError("Hace falta paréntesis de cerrar condición")
                 }
             }
-            if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && (tokenActual.lexema == "yes" || tokenActual.lexema == "not")) {
-                obtenerSiguienteToken()
-                if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR) {
-                    obtenerSiguienteToken()
-                    return Condicion3(tokenActual)
-                } else {
-                    reportarError("Hace falta paréntesis de cerrar condición")
-                }
-            }
+
         } else {
             if (tokenActual.categoria == Categoria.NEGACION || tokenActual.lexema == "no") {
                 obtenerSiguienteToken()
                 return esCondicion()
+            }
+            if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && (tokenActual.lexema == "yes" || tokenActual.lexema == "not")) {
+                obtenerSiguienteToken()
+                return Condicion3(tokenActual)
             }
             var expRel = esExpresionRelacional()
             if (expRel != null) {
@@ -653,10 +655,7 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
             if (expLo != null) {
                 return Condicion3(expLo)
             }
-            if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && (tokenActual.lexema == "yes" || tokenActual.lexema == "not")) {
-                obtenerSiguienteToken()
-                return Condicion3(tokenActual)
-            }
+
         }
 
         return null
@@ -869,7 +868,6 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
         val posIni = posicionActual
         if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
             val nombreVariable = tokenActual
-            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$44444444444444444444Entra asignacion4444444444444444$$$$$$$$$$$$44444444")
             if (posicionActual < listaTokens.size + 1) {
                 if (listaTokens[posicionActual + 1].categoria != Categoria.OPERADOR_DE_ASIGNACION) {
                     return null
@@ -890,7 +888,6 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
                 }
             } else {
                 reportarError("Después del nombre de la variable va un opAsignación")
-                print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% HACE BT EN ASIGNA %%%%%%%%%%%%%%%%%%%%%%%%%%%55%%%%%%%%5555")
                 hacerBT(posIni)
             }
         }
@@ -907,7 +904,6 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
             if (tokenActual.categoria == Categoria.PARENTESIS_ABRIR) {
                 obtenerSiguienteToken()
                 val argumentos: ArrayList<Expresion3> = esListaArgumentos()
-                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!EXPRESION CORRECTA!!!!!!!!!!!!!!!1111!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR) {
                     obtenerSiguienteToken()
                     if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
@@ -991,17 +987,14 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
             obtenerSiguienteToken()
             val expresionAritmetica = esExpresionAritmetica()
             if (expresionAritmetica != null) {
-                print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEXPRESION ARITM ESTA BIENEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                 if (tokenActual.categoria == Categoria.OPERADOR_RELACIONAL) {
                     val operadorRel = tokenActual
                     obtenerSiguienteToken()
                     val expresionAritmetica2 = esExpresionAritmetica()
                     if (expresionAritmetica2 != null) {
-                        print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEXPRESION ARITM ESTA BIENEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                         if (tokenActual.categoria != Categoria.CONCATENADOR || tokenActual.lexema != ",") {
                             if (tokenActual.categoria == Categoria.PARENTESIS_CERRAR || tokenActual.lexema == "]") {
                                 obtenerSiguienteToken()
-                                print("PPPPPPPPPPPPPPPPPPPPPPPPPPPPPARENTESIS DE CERRRAR TODO BIEN EXP ARITMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
                                 return ExpresionRelacional3(expresionAritmetica, operadorRel, expresionAritmetica2)
 
                             } else {
@@ -1017,7 +1010,6 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
                     }
                 } else {
                     // La ruta actual no es la correcta, por tanto, es pertinente volver al punto de partida
-                    print("Ruta incorrecta, a lo mejor es una exp aritmé..")
                     hacerBT(posInicial)
                     return null
                 }
@@ -1044,7 +1036,6 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
                     }
                 } else {
                     // La ruta actual no es la correcta, por tanto, es pertinente volver al punto de partida
-                    print("Ruta incorrecta, a lo mejor es una exp aritmé..")
                     hacerBT(posInicial)
                     return null
                 }
@@ -1062,7 +1053,6 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
             obtenerSiguienteToken()
             val expresionRel1 = esExpresionRelacional()
             if (expresionRel1 != null) {
-                print("-----------------------------------------ENTRA EXP REL 1 --------------------------- ")
                 if (tokenActual.categoria == Categoria.OPERADOR_LOGICO) {
                     val operadorLo = tokenActual
                     obtenerSiguienteToken()
@@ -1085,12 +1075,10 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
                     }
                 } else {
                     // La ruta actual no es la correcta, por tanto, es pertinente volver al punto de partida
-                    print("----------------------------------------NO ES EXP LOGICA --------------------------- ")
                     hacerBT(posInicial)
                     return null
                 }
             } else {
-                print("-----------------------------------------EPAAAAAAAAAAAAAAAAAAAAAAAAAAAA-------------------------------------- ")
                 hacerBT(posInicial)
                 return null
             }
@@ -1101,13 +1089,11 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
             }
             val expresionRel1 = esExpresionRelacional()
             if (expresionRel1 != null) {
-                print("-----------------------------------------ENTRA EXP REL 1 DEL ELSE --------------------------- ")
                 if (tokenActual.categoria == Categoria.OPERADOR_LOGICO) {
                     val operadorLo = tokenActual
                     obtenerSiguienteToken()
                     val expresionRel2 = esExpresionRelacional()
                     if (expresionRel2 != null) {
-                        print("wwwwwwwwwwwwwwwwwwwwwwwwwWWWWWWWWW RECONOCE AMBAS EXP REL aaaaaaaaaaaAAAAAAAAAAAAAAAA")
                         if (tokenActual.categoria != Categoria.CONCATENADOR || tokenActual.lexema != ",") {
 
                             return ExpresionLogica3(expresionRel1, operadorLo, expresionRel2)
@@ -1120,12 +1106,10 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
                     }
                 } else {
                     // La ruta actual no es la correcta, por tanto, es pertinente volver al punto de partida
-                    print("----------------------------------------EPAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA --------------------------- ")
                     hacerBT(posInicial)
                     return null
                 }
             } else {
-                print("-----------------------------------------Mal camino EXP LÓG-------------------------------------- ")
                 hacerBT(posInicial)
                 return null
             }
@@ -1325,13 +1309,11 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
             return null
         }
 
-        print("FFFFFFFFFFFFFFFFFFFFFFACTORRRR VERIFICA IDENTIFICADORRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR")
         if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
             val identificador = tokenActual
             obtenerSiguienteToken()
             return Factor3(identificador)
         }
-        print("FFFFFFFFFFFFFFFFFFFFFFACTORRRR VERIFICA VALOR NUMERICOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
 
         var valorNum = esValorNumerico()
         if (valorNum != null) {
@@ -1339,12 +1321,10 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>)
         }
 
 
-        print("FFFFFFFFFFFFFFFFFFFFFFACTORRRR VERIFICA EXPE ARITMETICAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
         var expArit = esExpresionAritmetica()
         if (expArit != null) {
             return Factor3(expArit)
         }
-        print("FFFFFFFFFFFFFFFFFFFFFFACTORRRR RETORNA NULOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
 
         return null
     }

@@ -1,6 +1,8 @@
 package co.edu.uniquindio.compiladores.sintaxis
 
+import co.edu.uniquindio.compiladores.lexico.Error
 import co.edu.uniquindio.compiladores.lexico.Token
+import co.edu.uniquindio.compiladores.semantica.TablaSimbolos
 import javafx.scene.control.TreeItem
 
 class Funcion3(var nombreFuncion: Token, var tipoRetorno:Token, var listaParametros:ArrayList<Parametro3>, var bloqueSentencias:ArrayList<Sentencia3>) {
@@ -28,5 +30,21 @@ class Funcion3(var nombreFuncion: Token, var tipoRetorno:Token, var listaParamet
         raiz.children.add(raizSentencias)
         return raiz
     }
+    fun obtenerTiposParametros(): ArrayList<String> {
+        var listaP: ArrayList<String> = ArrayList()
+        for ( p in listaParametros ) {
+            listaP.add(p.tipoDato.lexema)
+        }
+        return listaP
+    }
 
+    fun llenarTablaSimbolos( tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error>, ambito: String ) {
+        /*if ( tipoRetorno != null ) {
+            tablaSimbolos.guardarSimboloFuncion(nombreFuncion.lexema, tipoRetorno.lexema, obtenerTiposParametros(), ambito, nombreFuncion.fila, nombreFuncion.columna )
+        } else {
+
+        }*/
+        tablaSimbolos.guardarSimboloFuncion(nombreFuncion.lexema, tipoRetorno.lexema, obtenerTiposParametros(), ambito, nombreFuncion.fila, nombreFuncion.columna )
+
+    }
 }
