@@ -55,6 +55,9 @@ class InicioController : Initializable
                 val semantica = AnalizadorSemantico(uc!!)
                 semantica.llenarTablaSimbolos()
                 print( semantica.tablaSimbolos )
+
+                semantica.analizarSemantica()
+
                 print( semantica.listaErrores )
             }
             if (sintaxis.listaErrores.isEmpty()) {

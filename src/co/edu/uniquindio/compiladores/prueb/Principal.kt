@@ -7,13 +7,12 @@ fun main() {
     val a = AnalizadorLexico(
             "" +
                     "cad: cadena_ " +
-                    "Conjunto is entero: listaV_"+
                     "entero: cantidad_"+
                     "mtd is dec conRetorno [entero: a; entero: b]" +
                     "-->" +
 
-                    "{ listaV @ entero: {$10,0_c; $101,0_c; $20,0_c}_"+
-                    "Consultar[|Digite valor de: |, listaV]_"+
+                    "Conjunto is entero: listaV @ {$10,0; $101,0; $20,0}_" +
+                    "Leer[listaV]_"+
                     "invocacion2[|cadena|, a <+> b]_"+
                     "msg[|La suma de a y b, es: |, a <+> b]_"+
                     "suma @ a <+> b_"+

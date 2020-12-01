@@ -1,6 +1,7 @@
 package co.edu.uniquindio.compiladores.sintaxis
 
 import co.edu.uniquindio.compiladores.lexico.Token
+import co.edu.uniquindio.compiladores.semantica.TablaSimbolos
 import javafx.scene.control.TreeItem
 
 open class Termino3(){
@@ -29,6 +30,24 @@ open class Termino3(){
         this.factor1 = factor1
     }
 
+    fun obtenerTipo(tablaSimbolos: TablaSimbolos, ambito: String ): String {
+        if ( factor1 != null && factor2 != null ) {
+            if (factor1!!.obtenerTipo(tablaSimbolos, ambito) == "dec" || factor2!!.obtenerTipo(tablaSimbolos, ambito) == "dec" ) {
+                return "dec"
+            }
+            return "entero"
+        } else if ( factor1 != null && termino != null ) {
+            if ( factor1!!.obtenerTipo(tablaSimbolos, ambito) == "dec"  || termino!!.obtenerTipo(tablaSimbolos, ambito) == "dec") {
+                return "dec"
+            }
+            return "entero"
+        } else if (factor1 != null) {
+            return factor1!!.obtenerTipo(tablaSimbolos, ambito)
+        } else if (termino != null) {
+            return termino!!.obtenerTipo(tablaSimbolos, ambito)
+        }
+        return ""
+    }
     fun getArbolVisual(): TreeItem<String> {
         var raiz = TreeItem("Términos")
         if (operador != null) {
@@ -56,4 +75,5 @@ open class Termino3(){
     override fun toString(): String {
         return "Termino3(factor1=$factor1, factor2=$factor2, operador=$operador, termino=$termino)"
     }
+
 }

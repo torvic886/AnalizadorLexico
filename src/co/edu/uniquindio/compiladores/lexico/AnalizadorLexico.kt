@@ -1772,10 +1772,7 @@ class AnalizadorLexico(var codigoFuente: String) {
                                 return false
                             }
                         }
-
-
                     }
-
                 }
             }
         }
@@ -1813,6 +1810,41 @@ class AnalizadorLexico(var codigoFuente: String) {
                                 return false
                             }
                         }
+                    }
+
+                }
+            }
+        }
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'Leer' <--> ''
+        if (caracterActual == 'L') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'e') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'e') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'r') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+
+
+                            if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                return true
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
+
                     }
 
                 }

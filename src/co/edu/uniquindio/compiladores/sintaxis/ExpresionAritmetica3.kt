@@ -1,6 +1,7 @@
 package co.edu.uniquindio.compiladores.sintaxis
 
 import co.edu.uniquindio.compiladores.lexico.Token
+import co.edu.uniquindio.compiladores.semantica.TablaSimbolos
 import javafx.scene.control.TreeItem
 
 open class ExpresionAritmetica3():Expresion3()
@@ -25,6 +26,25 @@ open class ExpresionAritmetica3():Expresion3()
         this.termino = termino1
         this.operador = operador
         this.termino2 = termino2
+    }
+
+    override fun obtenerTipo(tablaSimbolos: TablaSimbolos, ambito: String ): String {
+        if (termino != null && termino2 != null) {
+            if (termino!!.obtenerTipo(tablaSimbolos, ambito) == "dec" || termino2!!.obtenerTipo(tablaSimbolos, ambito) == "dec" ) {
+                return "dec"
+            }
+            return "entero"
+        } else if (expArit1 != null && termino !=null ) {
+            if (expArit1!!.obtenerTipo(tablaSimbolos, ambito) == "dec" || termino!!.obtenerTipo(tablaSimbolos, ambito) == "dec" ) {
+                return "dec"
+            }
+            return "entero"
+        } else if (termino != null) {
+            return termino!!.obtenerTipo(tablaSimbolos, ambito)
+        } else if (expArit1 != null) {
+            return expArit1!!.obtenerTipo(tablaSimbolos, ambito)
+        }
+        return ""
     }
     override fun getArbolVisual(): TreeItem<String> {
         var raiz = TreeItem("Expresión Aritmética")

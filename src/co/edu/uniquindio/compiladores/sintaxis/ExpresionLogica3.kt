@@ -1,6 +1,7 @@
 package co.edu.uniquindio.compiladores.sintaxis
 
 import co.edu.uniquindio.compiladores.lexico.Token
+import co.edu.uniquindio.compiladores.semantica.TablaSimbolos
 import javafx.scene.control.TreeItem
 
 class ExpresionLogica3(var expresionRelacional: ExpresionRelacional3, var operadorLogico:Token, var expresionRelacional2: ExpresionRelacional3 ):Expresion3()
@@ -16,5 +17,9 @@ class ExpresionLogica3(var expresionRelacional: ExpresionRelacional3, var operad
         raizOp.children.add( expresionRelacional2.getArbolVisual() )
         raiz.children.add( raizOp )
         return raiz
+    }
+
+    override fun obtenerTipo(tablaSimbolos: TablaSimbolos, ambito: String ): String {
+        return "centi"
     }
 }

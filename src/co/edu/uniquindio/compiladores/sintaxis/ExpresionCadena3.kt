@@ -1,6 +1,7 @@
 package co.edu.uniquindio.compiladores.sintaxis
 
 import co.edu.uniquindio.compiladores.lexico.Token
+import co.edu.uniquindio.compiladores.semantica.TablaSimbolos
 import javafx.scene.control.TreeItem
 
 class ExpresionCadena3():Expresion3() {
@@ -49,5 +50,7 @@ class ExpresionCadena3():Expresion3() {
         return "ExpresionCadena3(cadena=$cadena, expresionA=$expresionA, expresionCadena=$expresionCadena)"
     }
 
-
+    override fun obtenerTipo(tablaSimbolos: TablaSimbolos, ambito: String ): String {
+        return "cad"
+    }
 }

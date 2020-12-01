@@ -15,4 +15,5 @@ class ValorNumerico3(var valor:Token) {
 
         return raiz
     }
+
 }
