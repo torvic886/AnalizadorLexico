@@ -1,12 +1,21 @@
 package co.edu.uniquindio.compiladores.sintaxis
 
+import co.edu.uniquindio.compiladores.lexico.Error
 import co.edu.uniquindio.compiladores.lexico.Token
+import co.edu.uniquindio.compiladores.semantica.Ambito
 import co.edu.uniquindio.compiladores.semantica.TablaSimbolos
 import javafx.scene.control.TreeItem
 
 class ExpresionRelacional3(var expresionAritmetica: ExpresionAritmetica3, var operardorRel:Token, var expresionAritmetica2: ExpresionAritmetica3):Expresion3() {
     override fun toString(): String {
         return "ExpresionRelacional(expresionAritmetica=$expresionAritmetica, operardorRel=$operardorRel, expresionAritmetica2=$expresionAritmetica2)"
+    }
+
+    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error>, ambito: Ambito) {
+        if (expresionAritmetica != null && expresionAritmetica2 != null) {
+            expresionAritmetica.analizarSemantica(tablaSimbolos, listaErrores, ambito)
+            expresionAritmetica2.analizarSemantica(tablaSimbolos, listaErrores, ambito)
+        }
     }
     override fun getArbolVisual(): TreeItem<String> {
         var raiz = TreeItem("Expresión Relacional")
@@ -16,7 +25,7 @@ class ExpresionRelacional3(var expresionAritmetica: ExpresionAritmetica3, var op
         raiz.children.add(raizOp)
         return raiz
     }
-    override fun obtenerTipo(tablaSimbolos: TablaSimbolos, ambito: String ): String {
+    override fun obtenerTipo(tablaSimbolos: TablaSimbolos, ambito: Ambito, listaErrores: ArrayList<Error>  ): String {
         return "centi"
     }
 }

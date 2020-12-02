@@ -3,7 +3,6 @@ package co.edu.uniquindio.compiladores.controladores
 import co.edu.uniquindio.compiladores.lexico.AnalizadorLexico
 import co.edu.uniquindio.compiladores.lexico.Error
 import co.edu.uniquindio.compiladores.lexico.Token
-import co.edu.uniquindio.compiladores.semantica.AnalizadorSemantico
 import co.edu.uniquindio.compiladores.sintaxis.AnalizadorSintactico6
 import javafx.collections.FXCollections
 import javafx.event.ActionEvent
@@ -29,9 +28,9 @@ class InicioController : Initializable
     @FXML lateinit var columnaToken: TableColumn<Token, Int>
 
     @FXML lateinit var tablaErrores: TableView<Error>
-    @FXML lateinit var descripcion: TableColumn<Error, String>
-    @FXML lateinit var filaError: TableColumn<Error, Int>
-    @FXML lateinit var columnaError: TableColumn<Error, Int>
+    @FXML lateinit var descripcionErrorColumn: TableColumn<Error, String>
+    @FXML lateinit var filaErrorColumn: TableColumn<Error, Int>
+    @FXML lateinit var columnaErrorColumn: TableColumn<Error, Int>
 
     @FXML lateinit var arbolVisual: TreeView<String>
     @FXML
@@ -42,27 +41,26 @@ class InicioController : Initializable
             val lexico = AnalizadorLexico(codigoFuente.text)
             lexico.analizar()
             tablaTokens.items = FXCollections.observableArrayList(lexico.listaTokens)
-
+            print(lexico.listaTokens)
 
             val sintaxis = AnalizadorSintactico6( lexico.listaTokens )
             val uc = sintaxis.esUnidadDeCompilacion5()
-            if (!sintaxis.listaErrores.isEmpty()) {
+
+            if (sintaxis.listaErrores.isNotEmpty())
+            {
                 tablaErrores.items = FXCollections.observableArrayList(sintaxis.listaErrores)
             }
-            if (uc != null) {
+
+            if (uc != null)
+            {
                 arbolVisual.root = uc.getArbolVisual()
-
-                val semantica = AnalizadorSemantico(uc!!)
-                semantica.llenarTablaSimbolos()
-                print( semantica.tablaSimbolos )
-
-                semantica.analizarSemantica()
-
-                print( semantica.listaErrores )
             }
-            if (sintaxis.listaErrores.isEmpty()) {
+            if (sintaxis.listaErrores.isEmpty())
+            {
 
-            } else {
+            }
+            else
+            {
                 var alerta = Alert(Alert.AlertType.WARNING)
                 alerta.headerText = "Alerta"
                 alerta.contentText = "Hay errores en el código fuente"
@@ -72,7 +70,7 @@ class InicioController : Initializable
         }
         else
         {
-          //  JOptionPane.showMessageDialog(null, "Al menos Debe Ingresar Un Codigo");
+
             JOptionPane.showMessageDialog(null, "Al menos Debe Ingresar Un Codigo",
                     "Mensaje Informativo", JOptionPane.WARNING_MESSAGE);
         }
@@ -123,6 +121,10 @@ class InicioController : Initializable
         categoriaToken.cellValueFactory = PropertyValueFactory("categoria")
         filaToken.cellValueFactory = PropertyValueFactory("fila")
         columnaToken.cellValueFactory = PropertyValueFactory("columna")
+
+        descripcionErrorColumn.cellValueFactory = PropertyValueFactory("Descripcion")
+        filaErrorColumn.cellValueFactory = PropertyValueFactory("Fila")
+        columnaErrorColumn.cellValueFactory = PropertyValueFactory("Columna")
 
     }
 

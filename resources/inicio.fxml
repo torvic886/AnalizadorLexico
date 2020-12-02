@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="469.0" prefWidth="1170.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.compiladores.controladores.InicioController">
+<AnchorPane prefHeight="469.0" prefWidth="1170.0" xmlns="http://javafx.com/javafx/8.0.241" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.compiladores.controladores.InicioController">
     <children>
         <Button fx:id="btnLimpiar" layoutX="14.0" layoutY="27.0" mnemonicParsing="false" onAction="#limpiar" prefHeight="25.0" prefWidth="98.0" text="Limpiar" textFill="#2242e0" />
         <Button fx:id="btnAnalizar" layoutX="133.0" layoutY="27.0" mnemonicParsing="false" onAction="#analizar" prefHeight="25.0" prefWidth="98.0" text="Analizar" textFill="#2242e0" />
@@ -38,7 +38,7 @@
         </Label>
         <TableView fx:id="tablaErrores" layoutX="14.0" layoutY="287.0" prefHeight="106.0" prefWidth="412.0">
             <columns>
-                <TableColumn fx:id="descripcion" prefWidth="117.3333330154419" text="Descripción" />
+                <TableColumn fx:id="descripcionError" prefWidth="117.3333330154419" text="Descripción" />
                 <TableColumn fx:id="filaError" prefWidth="293.3332977294922" text="Fila" />
                 <TableColumn fx:id="columnaError" prefWidth="75.0" text="Columna" />
             </columns>
@@ -51,21 +51,18 @@
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
-      <ImageView fitHeight="22.0" fitWidth="31.0" layoutX="209.0" layoutY="29.0" opacity="0.87" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@Img/analizar.png" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="22.0" fitWidth="31.0" layoutX="84.0" layoutY="29.0" opacity="0.87" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@Img/clean.png" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="22.0" fitWidth="31.0" layoutX="11.0" layoutY="411.0" opacity="0.87" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@Img/MarcaRegistrada.png" />
-         </image>
-      </ImageView>
+        <ImageView fitHeight="22.0" fitWidth="31.0" layoutX="209.0" layoutY="29.0" opacity="0.87" pickOnBounds="true"
+                   preserveRatio="true">
+            <Image url="@Img/analizar.png"/>
+        </ImageView>
+        <ImageView fitHeight="22.0" fitWidth="31.0" layoutX="84.0" layoutY="29.0" opacity="0.87" pickOnBounds="true"
+                   preserveRatio="true">
+            <Image url="@Img/clean.png"/>
+        </ImageView>
+        <ImageView fitHeight="22.0" fitWidth="31.0" layoutX="11.0" layoutY="411.0" opacity="0.87" pickOnBounds="true"
+                   preserveRatio="true">
+            <Image url="@Img/MarcaRegistrada.png"/>
+        </ImageView>
       <Button id="btnAyuda" layoutX="351.0" layoutY="27.0" mnemonicParsing="false" onAction="#generarPDF" text="Ayuda" textFill="#2242e0" />
         <TreeView fx:id="arbolVisual" layoutX="802.0" layoutY="66.0" prefHeight="397.0" prefWidth="333.0" />
       <Label layoutX="802.0" layoutY="44.0" text="Árbol sintáctico">
