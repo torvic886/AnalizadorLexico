@@ -36,5 +36,12 @@ class SentenciaWhereas3(var condicion: Condicion3, var sentencias: ArrayList<Sen
         }
     }
 
-
+    override fun getJavaCode(): String {
+        var codigo = "while(" + condicion.getJavaCode() + "){ "
+        for (s in sentencias) {
+            codigo += s.getJavaCode()
+        }
+        codigo += "}"
+        return codigo
+    }
 }

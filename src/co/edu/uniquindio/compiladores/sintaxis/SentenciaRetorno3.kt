@@ -22,4 +22,12 @@ class SentenciaRetorno3(var expresion: Expresion3):Sentencia3() {
         }
     }
 
+    override fun getJavaCode(): String {
+        var codigo = "return "
+        if (expresion != null) {
+            codigo += expresion.getJavaCode() + ";"
+        }
+        return codigo
+    }
+
 }

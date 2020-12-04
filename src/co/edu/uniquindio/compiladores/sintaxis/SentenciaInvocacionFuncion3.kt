@@ -39,4 +39,20 @@ class SentenciaInvocacionFuncion3(var nombreFuncion: Token, var argumentos: Arra
             listaErrores.add(Error("No existe dentro del ambito '${ambito}' la función '"+nombreFuncion.lexema+"'  ${listaTiposArgs}", nombreFuncion.fila, nombreFuncion.columna))
         }
     }
+
+    override fun getJavaCode(): String {
+        var codigo = nombreFuncion.getJavaCode() + "("
+        var aux = 0
+        for (e in argumentos) {
+            if (aux == 0) {
+                codigo +=  e.getJavaCode()
+                aux++
+            } else {
+                codigo += "," + e.getJavaCode()
+            }
+        }
+        codigo += ");"
+
+        return codigo
+    }
 }
