@@ -1,5 +1,8 @@
 package co.edu.uniquindio.compiladores.sintaxis
 
+import co.edu.uniquindio.compiladores.lexico.Error
+import co.edu.uniquindio.compiladores.semantica.Ambito
+import co.edu.uniquindio.compiladores.semantica.TablaSimbolos
 import javafx.scene.control.TreeItem
 
 class SentenciaRetorno3(var expresion: Expresion3):Sentencia3() {
@@ -12,4 +15,11 @@ class SentenciaRetorno3(var expresion: Expresion3):Sentencia3() {
         raiz.children.add( expresion.getArbolVisual() )
         return raiz
     }
+
+    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error>, ambito: Ambito) {
+        if (expresion != null) {
+            expresion.analizarSemantica(tablaSimbolos, listaErrores, ambito)
+        }
+    }
+
 }
