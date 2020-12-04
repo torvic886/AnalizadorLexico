@@ -15,5 +15,8 @@ class ValorNumerico3(var valor:Token) {
 
         return raiz
     }
+    fun getJavaCode(): String {
+        return valor.getJavaCode()
+    }
 
 }

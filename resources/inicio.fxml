@@ -5,48 +5,82 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="469.0" prefWidth="1170.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.compiladores.controladores.InicioController">
+<AnchorPane prefHeight="615.0" prefWidth="1132.0" xmlns="http://javafx.com/javafx/8.0.221" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.compiladores.controladores.InicioController">
     <children>
         <Button fx:id="btnLimpiar" layoutX="14.0" layoutY="27.0" mnemonicParsing="false" onAction="#limpiar" prefHeight="25.0" prefWidth="98.0" text="Limpiar" textFill="#2242e0" />
-        <Button fx:id="btnAnalizar" layoutX="133.0" layoutY="27.0" mnemonicParsing="false" onAction="#analizar" prefHeight="25.0" prefWidth="98.0" text="Analizar" textFill="#2242e0" />
-        <Label layoutX="433.0" layoutY="43.0" prefHeight="17.0" prefWidth="148.0" text="Codigo fuente a evaluar">
+        <Button fx:id="btnAnalizar" layoutX="133.0" layoutY="27.0" mnemonicParsing="false" onAction="#analizar" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #00B2FF;" text="Analizar" textFill="#2242e0" />
+        <Button fx:id="btnTraducir" layoutX="240.0" layoutY="27.0" mnemonicParsing="false" onAction="#traducirCodigo" prefHeight="25.0" prefWidth="98.0" text="Traducir" textFill="#2242e0" />
+        <Label layoutX="11.0" layoutY="67.0" prefHeight="17.0" prefWidth="146.0" text="Codigo fuente a evaluar">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <TextArea fx:id="codigoFuente" layoutX="433.0" layoutY="66.0" prefHeight="397.0" prefWidth="349.0" />
-        <Label layoutX="22.0" layoutY="66.0" text="Resultado Del Analisis Lexico:">
+        <TextArea fx:id="codigoFuente" layoutX="15.0" layoutY="99.0" prefHeight="346.0" prefWidth="388.0" />
+        <Label layoutX="419.0" layoutY="19.0" text="Resultado Del Analisis Lexico:">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <TableView fx:id="tablaTokens" layoutX="14.0" layoutY="88.0" prefHeight="168.0" prefWidth="412.0">
+        <TableView fx:id="tablaTokens" layoutX="420.0" layoutY="48.0" prefHeight="290.0" prefWidth="405.0">
             <columns>
-                <TableColumn fx:id="lexemaToken" prefWidth="117.3333330154419" text="Lexema" />
-                <TableColumn fx:id="categoriaToken" prefWidth="293.3332977294922" text="Categoria" />
-                <TableColumn fx:id="filaToken" prefWidth="75.0" text="Fila" />
-                <TableColumn fx:id="columnaToken" prefWidth="75.0" text="Columna" />
+                <TableColumn fx:id="lexemaToken" prefWidth="117.3333330154419" style="-fx-alignment: CENTER;" text="Lexema" />
+                <TableColumn fx:id="categoriaToken" prefWidth="108.0" text="Categoria" />
+                <TableColumn fx:id="filaToken" prefWidth="108.0" text="Fila" />
+                <TableColumn fx:id="columnaToken" prefWidth="139.0" text="Columna" />
             </columns>
             <columnResizePolicy>
                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
             </columnResizePolicy>
         </TableView>
-        <Label layoutX="14.0" layoutY="266.0" text="Errores de sintaxis:">
-            <font>
-                <Font name="System Bold" size="12.0" />
-            </font>
-        </Label>
-        <TableView fx:id="tablaErrores" layoutX="14.0" layoutY="287.0" prefHeight="106.0" prefWidth="412.0">
-            <columns>
-                <TableColumn fx:id="descripcion" prefWidth="117.3333330154419" text="Descripción" />
-                <TableColumn fx:id="filaError" prefWidth="293.3332977294922" text="Fila" />
-                <TableColumn fx:id="columnaError" prefWidth="75.0" text="Columna" />
-            </columns>
-            <columnResizePolicy>
-                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-            </columnResizePolicy>
-        </TableView>
-      <Label layoutX="42.0" layoutY="411.0" prefHeight="52.0" prefWidth="139.0" text="Victor      Gutierrez&#10;William   Castañeda&#10;Mauricio Tabares">
+        <TabPane layoutX="419.0" layoutY="360.0" prefHeight="133.0" prefWidth="686.0" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab fx:id="erroresLexico" text="ERRORES LEXICO">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <TableView fx:id="tablaErroresLexico" layoutX="-5.0" layoutY="1.0" prefHeight="120.0" prefWidth="689.0">
+                                    <columns>
+                                        <TableColumn fx:id="mensajeErrorLexico" prefWidth="426.0" text="ERRORES" />
+                                        <TableColumn fx:id="filaErrorLexico" prefWidth="57.0" text="FILA" />
+                                        <TableColumn fx:id="columnaErrorLexico" prefWidth="93.0" text="COLUMNA" />
+                                    </columns>
+                                </TableView>
+                            </children></AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="erroresSintacticos" text="ERRORES SINTACTICOS">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <TableView fx:id="tablaErroresSintactico" layoutX="1.0" prefHeight="240.0" prefWidth="570.0">
+                                    <columns>
+                                        <TableColumn fx:id="mensajeErrorSintactico" prefWidth="415.0" text="ERRORES" />
+                                        <TableColumn fx:id="filaErrorSintactico" prefWidth="71.0" text="FILA" />
+                                        <TableColumn fx:id="columnaErrorSintactico" prefWidth="83.0" text="COLUMNA" />
+                                    </columns>
+                                </TableView>
+                            </children></AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="erroresSemanticos" text="ERRORES SEMANTICOS">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <TableView fx:id="tablaErroresSemantico" prefHeight="239.0" prefWidth="570.0">
+                                    <columns>
+                                        <TableColumn fx:id="mensajeErrorSemantico" prefWidth="424.0" text="ERRORES" />
+                                        <TableColumn fx:id="filaErrorSemantico" prefWidth="56.0" text="FILA" />
+                                        <TableColumn fx:id="columnaErrorSemantico" prefWidth="89.0" text="COLUMNA" />
+                                    </columns>
+                                </TableView>
+                            </children></AnchorPane>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+
+
+      <Label layoutX="41.0" layoutY="461.0" prefHeight="52.0" prefWidth="139.0" text="Victor      Gutierrez&#10;William   Castañeda&#10;Mauricio Tabares">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
@@ -61,14 +95,14 @@
             <Image url="@Img/clean.png" />
          </image>
       </ImageView>
-      <ImageView fitHeight="22.0" fitWidth="31.0" layoutX="11.0" layoutY="411.0" opacity="0.87" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="22.0" fitWidth="31.0" layoutX="10.0" layoutY="461.0" opacity="0.87" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@Img/MarcaRegistrada.png" />
          </image>
       </ImageView>
       <Button id="btnAyuda" layoutX="351.0" layoutY="27.0" mnemonicParsing="false" onAction="#generarPDF" text="Ayuda" textFill="#2242e0" />
-        <TreeView fx:id="arbolVisual" layoutX="802.0" layoutY="66.0" prefHeight="397.0" prefWidth="333.0" />
-      <Label layoutX="802.0" layoutY="44.0" text="Árbol sintáctico">
+        <TreeView fx:id="arbolVisual" layoutX="835.0" layoutY="48.0" prefHeight="290.0" prefWidth="275.0" />
+      <Label layoutX="835.0" layoutY="21.0" text="Árbol sintáctico">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>

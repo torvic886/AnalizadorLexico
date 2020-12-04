@@ -1,6 +1,8 @@
 package co.edu.uniquindio.compiladores.sintaxis
 
+import co.edu.uniquindio.compiladores.lexico.Error
 import co.edu.uniquindio.compiladores.lexico.Token
+import co.edu.uniquindio.compiladores.semantica.Ambito
 import co.edu.uniquindio.compiladores.semantica.TablaSimbolos
 import javafx.scene.control.TreeItem
 
@@ -28,21 +30,35 @@ open class ExpresionAritmetica3():Expresion3()
         this.termino2 = termino2
     }
 
-    override fun obtenerTipo(tablaSimbolos: TablaSimbolos, ambito: String ): String {
+    override fun analizarSemantica(tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error>, ambito: Ambito) {
+        if (termino2 != null && termino != null) {
+            termino!!.analizarSemantica(tablaSimbolos, listaErrores, ambito)
+            termino2!!.analizarSemantica(tablaSimbolos, listaErrores, ambito)
+        } else if (expArit1 != null && termino != null) {
+            termino!!.analizarSemantica(tablaSimbolos, listaErrores, ambito)
+            expArit1!!.analizarSemantica(tablaSimbolos, listaErrores, ambito)
+        } else if (termino != null) {
+            termino!!.analizarSemantica(tablaSimbolos, listaErrores, ambito)
+        } else if (expArit1 != null) {
+            expArit1!!.analizarSemantica(tablaSimbolos, listaErrores, ambito)
+        }
+    }
+
+    override fun obtenerTipo(tablaSimbolos: TablaSimbolos, ambito: Ambito, listaErrores: ArrayList<Error>  ): String {
         if (termino != null && termino2 != null) {
-            if (termino!!.obtenerTipo(tablaSimbolos, ambito) == "dec" || termino2!!.obtenerTipo(tablaSimbolos, ambito) == "dec" ) {
+            if (termino!!.obtenerTipo(tablaSimbolos, ambito, listaErrores) == "dec" || termino2!!.obtenerTipo(tablaSimbolos, ambito, listaErrores) == "dec" ) {
                 return "dec"
             }
             return "entero"
         } else if (expArit1 != null && termino !=null ) {
-            if (expArit1!!.obtenerTipo(tablaSimbolos, ambito) == "dec" || termino!!.obtenerTipo(tablaSimbolos, ambito) == "dec" ) {
+            if (expArit1!!.obtenerTipo(tablaSimbolos, ambito, listaErrores) == "dec" || termino!!.obtenerTipo(tablaSimbolos, ambito, listaErrores) == "dec" ) {
                 return "dec"
             }
             return "entero"
         } else if (termino != null) {
-            return termino!!.obtenerTipo(tablaSimbolos, ambito)
+            return termino!!.obtenerTipo(tablaSimbolos, ambito, listaErrores)
         } else if (expArit1 != null) {
-            return expArit1!!.obtenerTipo(tablaSimbolos, ambito)
+            return expArit1!!.obtenerTipo(tablaSimbolos, ambito, listaErrores)
         }
         return ""
     }
@@ -80,5 +96,27 @@ open class ExpresionAritmetica3():Expresion3()
         return "ExpresionAritmetica3(expArit1=$expArit1, termino=$termino, termino2=$termino2, operador=$operador)"
     }
 
+    override fun getJavaCode(): String {
+        var codigo = ""
+        when {
+            termino != null && termino2 != null -> {
+                codigo += termino!!.getJavaCode()
+                codigo += operador!!.getJavaCode()
+                codigo += termino2!!.getJavaCode()
+            }
+            expArit1 != null && termino !=null -> {
+                codigo += "(" + expArit1!!.getJavaCode() +")"
+                codigo += operador!!.getJavaCode()
+                codigo += termino!!.getJavaCode()
+            }
+            termino != null -> {
+                codigo += termino!!.getJavaCode()
+            }
+            expArit1 != null -> {
+                codigo += "(" + expArit1!!.getJavaCode() +")"
+            }
+        }
+        return codigo
+    }
 
 }

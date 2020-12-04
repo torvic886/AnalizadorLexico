@@ -58,7 +58,7 @@ class AnalizadorLexico(var codigoFuente: String) {
                 obtenerSiguienteCaracter()
             }
 
-
+            if (esCenti()) continue
             if (esEntero()) continue
             if (esEnteroCorto()) continue
             if (esEnteroLargo()) continue
@@ -1086,6 +1086,55 @@ class AnalizadorLexico(var codigoFuente: String) {
 
             almacenarToken(lexema, Categoria.FIN_SENTENCIA, filaInicial, columnaInicial)
             return true
+        }
+        return false
+    }
+
+    /**
+     * Método que valida un booleano
+     */
+    fun esCenti(): Boolean {
+        if (caracterActual == 'y') {
+
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'e') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+
+                if (caracterActual == 's') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(lexema, Categoria.CENTI, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+            hacerBT(posicionInicial, filaInicial, columnaInicial)
+        }
+        if (caracterActual == 'n') {
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'o') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 't') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    almacenarToken(lexema, Categoria.CENTI, filaInicial, columnaInicial)
+                    return true
+                }
+            }
+            hacerBT(posicionInicial, filaInicial, columnaInicial)
         }
         return false
     }

@@ -5,22 +5,23 @@ import co.edu.uniquindio.compiladores.lexico.Error
 class TablaSimbolos(var listaErrores:ArrayList<Error>) {
     var listaSimbolos: ArrayList<Simbolo> = ArrayList()
 
+
     /**
      * Permite guardar un simbolo que representa una variable, una constante, un arreglo, un parámetro
      */
-    fun guardarSimboloValor( nombre:String, tipo:String, modificable:Boolean, ambito:String, fila:Int, columna:Int ) {
-        val s = buscarSimboloValor( nombre, ambito )
+    fun guardarSimboloValor( nombre:String, tipo:String, modificable:Boolean, ambito:Ambito, fila:Int, columna:Int ) {
+        val s = buscarSimboloValor( nombre, ambito, fila, columna )
         if ( s == null ) {
             listaSimbolos.add( Simbolo(nombre, tipo, modificable, ambito, fila, columna) )
         } else {
-            listaErrores.add( Error("El campo $nombre ya existe dentro del ámbito $ambito", fila, columna ))
+            listaErrores.add( Error("El campo $nombre ya existe dentro del ámbito ${ambito.nombre}", fila, columna ))
         }
     }
 
     /**
      * Permite guardar un simbolo que representa una funcion
      */
-    fun guardarSimboloFuncion( nombre:String, tipoRetorno:String, tiposParametros:ArrayList<String>, ambito:String, fila: Int, columna: Int ) {
+    fun guardarSimboloFuncion( nombre:String, tipoRetorno:String, tiposParametros:ArrayList<String>, ambito:Ambito, fila: Int, columna: Int ) {
         val s = buscarSimboloFuncion( nombre, tiposParametros )
         if ( s == null ) {
             listaSimbolos.add( Simbolo( nombre, tipoRetorno, tiposParametros, ambito) )
@@ -32,10 +33,25 @@ class TablaSimbolos(var listaErrores:ArrayList<Error>) {
     /**
      * Permite buscar un valor dentro de la tabla simbolos
      */
-    fun buscarSimboloValor( nombre:String, ambito:String ): Simbolo?{
+    fun buscarSimboloValor( nombre:String, ambito:Ambito, fila:Int, columna:Int ): Simbolo?{
         for ( s in listaSimbolos ) {
             if ( s.tiposParametros == null ) {
-                if ( s.nombre == nombre && s.ambito == ambito) return s
+                if ( (s.nombre == nombre && s.ambito!!.nombre == ambito.nombre && s.ambito!!.parametros == ambito.parametros) ) {
+                    print("")
+                    print("----------"+s.nombre+" <<<<< fila: "+fila+" columna: "+columna+"--------")
+                    print("----------"+s.nombre+" <<<<< fila: "+s.fila+" columna: "+s.columna+"---------")
+
+                    print("")
+                    if(s.fila <= fila) {
+                        if (s.fila == fila && s.columna > columna) {
+                            return null
+                        }
+                        return s
+                    } else {
+                        return null
+                    }
+
+                }
             }
         }
         return null

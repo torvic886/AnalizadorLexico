@@ -4,7 +4,9 @@ import co.edu.uniquindio.compiladores.lexico.AnalizadorLexico
 import co.edu.uniquindio.compiladores.lexico.Error
 import co.edu.uniquindio.compiladores.lexico.Token
 import co.edu.uniquindio.compiladores.semantica.AnalizadorSemantico
+import co.edu.uniquindio.compiladores.semantica.Simbolo
 import co.edu.uniquindio.compiladores.sintaxis.AnalizadorSintactico6
+import co.edu.uniquindio.compiladores.sintaxis.UnidadDeCompilacion3
 import javafx.collections.FXCollections
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
@@ -16,49 +18,90 @@ import java.io.File
 import java.net.URL
 import java.util.*
 import javax.swing.JOptionPane
+import kotlin.collections.ArrayList
 
 
-class InicioController : Initializable
-{
-    @FXML lateinit var codigoFuente:TextArea
-
-    @FXML lateinit var tablaTokens: TableView<Token>
-    @FXML lateinit var lexemaToken: TableColumn<Token, String>
-    @FXML lateinit var categoriaToken: TableColumn<Token, String>
-    @FXML lateinit var filaToken: TableColumn<Token, Int>
-    @FXML lateinit var columnaToken: TableColumn<Token, Int>
-
-    @FXML lateinit var tablaErrores: TableView<Error>
-    @FXML lateinit var descripcion: TableColumn<Error, String>
-    @FXML lateinit var filaError: TableColumn<Error, Int>
-    @FXML lateinit var columnaError: TableColumn<Error, Int>
-
-    @FXML lateinit var arbolVisual: TreeView<String>
+class InicioController : Initializable {
     @FXML
-    fun analizar(e: ActionEvent)
-    {
-        if (codigoFuente.text.isNotEmpty())
-        {
-            val lexico = AnalizadorLexico(codigoFuente.text)
+    lateinit var codigoFuente: TextArea
+
+    @FXML
+    lateinit var tablaTokens: TableView<Token>
+    @FXML
+    lateinit var lexemaToken: TableColumn<Token, String>
+    @FXML
+    lateinit var categoriaToken: TableColumn<Token, String>
+    @FXML
+    lateinit var filaToken: TableColumn<Token, Int>
+    @FXML
+    lateinit var columnaToken: TableColumn<Token, Int>
+
+    //
+    @FXML
+    lateinit var tablaErroresLexico: TableView<Error> // variable de la tabla
+    @FXML
+    lateinit var mensajeErrorLexico: TableColumn<Error, String> // variable de la columna lexema
+    @FXML
+    lateinit var filaErrorLexico: TableColumn<Error, Int> // variable de la columna categoria
+    @FXML
+    lateinit var columnaErrorLexico: TableColumn<Error, Int> // variable de la columna fila
+
+    @FXML
+    lateinit var tablaErroresSintactico: TableView<Error> // variable de la tabla
+    @FXML
+    lateinit var mensajeErrorSintactico: TableColumn<Error, String> // variable de la columna lexema
+    @FXML
+    lateinit var filaErrorSintactico: TableColumn<Error, Int> // variable de la columna categoria
+    @FXML
+    lateinit var columnaErrorSintactico: TableColumn<Error, Int> // variable de la columna fila
+
+    @FXML
+    lateinit var tablaErroresSemantico: TableView<Error> // variable de la tabla
+    @FXML
+    lateinit var mensajeErrorSemantico: TableColumn<Error, String> // variable de la columna lexema
+    @FXML
+    lateinit var filaErrorSemantico: TableColumn<Error, Int> // variable de la columna categoria
+    @FXML
+    lateinit var columnaErrorSemantico: TableColumn<Error, Int> // variable de la columna fila
+
+    //
+
+
+    private var unidadDeCompilacion: UnidadDeCompilacion3? = null
+    private lateinit var lexico: AnalizadorLexico
+    private lateinit var sintaxis: AnalizadorSintactico6
+    private lateinit var semantica: AnalizadorSemantico
+    @FXML
+    lateinit var arbolVisual: TreeView<String>
+
+    @FXML
+    fun analizar(e: ActionEvent) {
+        if (codigoFuente.text.isNotEmpty()) {
+            lexico = AnalizadorLexico(codigoFuente.text)
             lexico.analizar()
             tablaTokens.items = FXCollections.observableArrayList(lexico.listaTokens)
+            //tablaErroresLexico.setItems(FXCollections.observableArrayList(lexico.listaErrores))
 
 
-            val sintaxis = AnalizadorSintactico6( lexico.listaTokens )
-            val uc = sintaxis.esUnidadDeCompilacion5()
-            if (!sintaxis.listaErrores.isEmpty()) {
-                tablaErrores.items = FXCollections.observableArrayList(sintaxis.listaErrores)
-            }
-            if (uc != null) {
-                arbolVisual.root = uc.getArbolVisual()
+            sintaxis = AnalizadorSintactico6(lexico.listaTokens)
+            unidadDeCompilacion = sintaxis.esUnidadDeCompilacion5()
+            tablaErroresSintactico.setItems(FXCollections.observableArrayList(sintaxis.listaErrores))
 
-                val semantica = AnalizadorSemantico(uc!!)
+            println(sintaxis.listaErrores)
+
+            if (unidadDeCompilacion != null) {
+                arbolVisual.root = unidadDeCompilacion!!.getArbolVisual()
+
+                semantica = AnalizadorSemantico(unidadDeCompilacion!!)
                 semantica.llenarTablaSimbolos()
-                print( semantica.tablaSimbolos )
+
+                println(semantica.tablaSimbolos)
 
                 semantica.analizarSemantica()
 
-                print( semantica.listaErrores )
+                println(semantica.listaErrores)
+                tablaErroresSemantico.setItems(FXCollections.observableArrayList(semantica.listaErrores))
+
             }
             if (sintaxis.listaErrores.isEmpty()) {
 
@@ -69,10 +112,8 @@ class InicioController : Initializable
             }
 
 
-        }
-        else
-        {
-          //  JOptionPane.showMessageDialog(null, "Al menos Debe Ingresar Un Codigo");
+        } else {
+            //  JOptionPane.showMessageDialog(null, "Al menos Debe Ingresar Un Codigo");
             JOptionPane.showMessageDialog(null, "Al menos Debe Ingresar Un Codigo",
                     "Mensaje Informativo", JOptionPane.WARNING_MESSAGE);
         }
@@ -80,16 +121,12 @@ class InicioController : Initializable
     }
 
     @FXML
-    fun limpiar(e: ActionEvent)
-    {
+    fun limpiar(e: ActionEvent) {
 
-        if (codigoFuente.text.isNotEmpty())
-        {
+        if (codigoFuente.text.isNotEmpty()) {
             tablaTokens.items.clear()
             codigoFuente.text = ""
-        }
-        else
-        {
+        } else {
             //  JOptionPane.showMessageDialog(null, "Al menos Debe Ingresar Un Codigo");
             JOptionPane.showMessageDialog(null, "No existe Un Codigo Que Limpiar",
                     "Mensaje Informativo", JOptionPane.INFORMATION_MESSAGE);
@@ -101,29 +138,55 @@ class InicioController : Initializable
      *
      */
     @FXML
-    fun generarPDF(e: ActionEvent)
-    {
-        try
-        {
+    fun generarPDF(e: ActionEvent) {
+        try {
 
-                val objetofile: File = File("resources\\pdf\\Lenguaje Helix.pdf")
-                Desktop.getDesktop().open(objetofile)
+            val objetofile: File = File("resources\\pdf\\Lenguaje Helix.pdf")
+            Desktop.getDesktop().open(objetofile)
 
-        }
-        catch (evvv: Exception)
-        {
+        } catch (evvv: Exception) {
             JOptionPane.showMessageDialog(null, "No se puede abrir el archivo de ayuda, probablemente fue borrado", "ERROR", JOptionPane.ERROR_MESSAGE)
         }
     }
 
 
-    override fun initialize(location: URL?, resources: ResourceBundle?)
-    {
+    override fun initialize(location: URL?, resources: ResourceBundle?) {
         lexemaToken.cellValueFactory = PropertyValueFactory("lexema")
         categoriaToken.cellValueFactory = PropertyValueFactory("categoria")
         filaToken.cellValueFactory = PropertyValueFactory("fila")
         columnaToken.cellValueFactory = PropertyValueFactory("columna")
 
+        mensajeErrorLexico.cellValueFactory = PropertyValueFactory("error")
+        filaErrorLexico.cellValueFactory = PropertyValueFactory("fila")
+        columnaErrorLexico.cellValueFactory = PropertyValueFactory("columna")
+
+        mensajeErrorSintactico.cellValueFactory = PropertyValueFactory("error")
+        filaErrorSintactico.cellValueFactory = PropertyValueFactory("fila")
+        columnaErrorSintactico.cellValueFactory = PropertyValueFactory("columna")
+
+        mensajeErrorSemantico.cellValueFactory = PropertyValueFactory("error")
+        filaErrorSemantico.cellValueFactory = PropertyValueFactory("fila")
+        columnaErrorSemantico.cellValueFactory = PropertyValueFactory("columna")
+
+
+    }
+
+    @FXML
+    fun traducirCodigo(e: ActionEvent) {
+        if (unidadDeCompilacion != null) {
+            val codigo = unidadDeCompilacion!!.getJavaCode()
+            File("src/Principal.java").writeText( codigo )
+            val runtime = Runtime.getRuntime().exec("javac src/Principal.java")
+            runtime.waitFor()
+            Runtime.getRuntime().exec("java Principal", null, File("src"))
+
+        }
+        /*if (unidadDeCompilacion != null) {
+            File("src/Principal.java").writeText( unidadDeCompilacion!!.getJavaCode() )
+            val runtime = Runtime.getRuntime().exec("javac src/Principal.java")
+            runtime.waitFor()
+            Runtime.getRuntime().exec("java Principal", null, File("src"))
+        }*/
     }
 
 }
