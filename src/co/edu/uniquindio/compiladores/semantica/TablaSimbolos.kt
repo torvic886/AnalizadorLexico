@@ -36,12 +36,7 @@ class TablaSimbolos(var listaErrores:ArrayList<Error>) {
     fun buscarSimboloValor( nombre:String, ambito:Ambito, fila:Int, columna:Int ): Simbolo?{
         for ( s in listaSimbolos ) {
             if ( s.tiposParametros == null ) {
-                if ( (s.nombre == nombre && s.ambito!!.nombre == ambito.nombre && s.ambito!!.parametros == ambito.parametros) ) {
-                    print("")
-                    print("----------"+s.nombre+" <<<<< fila: "+fila+" columna: "+columna+"--------")
-                    print("----------"+s.nombre+" <<<<< fila: "+s.fila+" columna: "+s.columna+"---------")
-
-                    print("")
+                if ( (s.nombre == nombre && (s.ambito!!.nombre == ambito.nombre || s.ambito!!.nombre == "unidadCompilacion") && s.ambito!!.parametros == ambito.parametros) ) {
                     if(s.fila <= fila) {
                         if (s.fila == fila && s.columna > columna) {
                             return null

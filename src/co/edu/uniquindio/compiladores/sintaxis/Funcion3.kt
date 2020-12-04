@@ -99,7 +99,7 @@ class Funcion3(var nombreFuncion: Token, var tipoRetorno:Token?, var listaParame
             codigo += "public static void main(String [] args) {"
         } else {
             if (tipoRetorno != null) {
-                codigo += "static " + tipoRetorno!!.getJavaCode() + nombreFuncion.getJavaCode() + "("
+                codigo += "static " + tipoRetorno!!.getJavaCode() + " " +nombreFuncion.getJavaCode() + "("
                 var aux = 0
                 for (p in listaParametros) {
                     if (aux == 0) {

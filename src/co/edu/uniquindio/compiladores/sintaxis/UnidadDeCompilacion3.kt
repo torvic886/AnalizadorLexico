@@ -5,7 +5,7 @@ import co.edu.uniquindio.compiladores.semantica.Ambito
 import co.edu.uniquindio.compiladores.semantica.TablaSimbolos
 import javafx.scene.control.TreeItem
 
-class UnidadDeCompilacion3(var listaDeclVar:ArrayList<Sentencia3>, var listaFunciones:ArrayList<Funcion3>) {
+class UnidadDeCompilacion3(var listaDeclVar:ArrayList<Sentencia3>, var listaFunciones:ArrayList<Funcion3>, var listaConstantes: ArrayList<Constante>) {
     override fun toString(): String {
         return "UnidadDeCompilacion(listaDeclVar=$listaDeclVar, listaFunciones=$listaFunciones)"
     }
@@ -13,6 +13,9 @@ class UnidadDeCompilacion3(var listaDeclVar:ArrayList<Sentencia3>, var listaFunc
     fun getArbolVisual():TreeItem<String> {
         var raiz = TreeItem("Unidad de Compilación")
 
+        for (d in listaConstantes) {
+            raiz.children.add( d.getArbolVisual() )
+        }
         for (d in listaDeclVar) {
             raiz.children.add( d.getArbolVisual() )
         }
@@ -23,16 +26,26 @@ class UnidadDeCompilacion3(var listaDeclVar:ArrayList<Sentencia3>, var listaFunc
         return raiz
     }
     fun llenarTablaSimbolos( tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error> ) {
-        for ( f in listaFunciones ) {
-            f.llenarTablaSimbolos( tablaSimbolos, listaErrores, Ambito("unidadCompilacion"))
+        for ( c in listaConstantes ) {
+            c.llenarTablaSimbolos(tablaSimbolos, listaErrores, Ambito("unidadCompilacion"))
         }
         for ( x in listaDeclVar ) {
             x.llenarTablaSimbolos(tablaSimbolos, listaErrores, Ambito("unidadCompilacion"))
         }
+        for ( f in listaFunciones ) {
+            f.llenarTablaSimbolos( tablaSimbolos, listaErrores, Ambito("unidadCompilacion"))
+        }
+
     }
     fun analizarSemantica( tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error> ) {
         var centi = false
         var aux = 0
+        for (v in listaConstantes) {
+            v.analizarSemantica(tablaSimbolos, listaErrores, Ambito("unidadCompilacion"))
+        }
+        for (v in listaDeclVar) {
+            v.analizarSemantica(tablaSimbolos, listaErrores, Ambito("unidadCompilacion"))
+        }
         for ( f in listaFunciones ) {
             if (f.nombreFuncion.lexema == "raiz") {
                 if (f.listaParametros.isNotEmpty()) {
@@ -54,6 +67,12 @@ class UnidadDeCompilacion3(var listaDeclVar:ArrayList<Sentencia3>, var listaFunc
     }
     fun getJavaCode():String {
         var codigo = "import javax.swing.*; public class Principal{"
+        for (c in listaConstantes) {
+            codigo += c.getJavaCode()
+        }
+        for (v in listaDeclVar) {
+            v.getJavaCode()
+        }
         for (f in listaFunciones) {
             codigo += f.getJavaCode()
         }

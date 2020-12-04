@@ -38,31 +38,31 @@ class InicioController : Initializable {
 
     //
     @FXML
-    lateinit var tablaErroresLexico: TableView<Error> // variable de la tabla
+    lateinit var tablaErroresLexico: TableView<Error>
     @FXML
-    lateinit var mensajeErrorLexico: TableColumn<Error, String> // variable de la columna lexema
+    lateinit var mensajeErrorLexico: TableColumn<Error, String>
     @FXML
-    lateinit var filaErrorLexico: TableColumn<Error, Int> // variable de la columna categoria
+    lateinit var filaErrorLexico: TableColumn<Error, Int>
     @FXML
-    lateinit var columnaErrorLexico: TableColumn<Error, Int> // variable de la columna fila
+    lateinit var columnaErrorLexico: TableColumn<Error, Int>
 
     @FXML
-    lateinit var tablaErroresSintactico: TableView<Error> // variable de la tabla
+    lateinit var tablaErroresSintactico: TableView<Error>
     @FXML
-    lateinit var mensajeErrorSintactico: TableColumn<Error, String> // variable de la columna lexema
+    lateinit var mensajeErrorSintactico: TableColumn<Error, String>
     @FXML
-    lateinit var filaErrorSintactico: TableColumn<Error, Int> // variable de la columna categoria
+    lateinit var filaErrorSintactico: TableColumn<Error, Int>
     @FXML
-    lateinit var columnaErrorSintactico: TableColumn<Error, Int> // variable de la columna fila
+    lateinit var columnaErrorSintactico: TableColumn<Error, Int>
 
     @FXML
-    lateinit var tablaErroresSemantico: TableView<Error> // variable de la tabla
+    lateinit var tablaErroresSemantico: TableView<Error>
     @FXML
-    lateinit var mensajeErrorSemantico: TableColumn<Error, String> // variable de la columna lexema
+    lateinit var mensajeErrorSemantico: TableColumn<Error, String>
     @FXML
-    lateinit var filaErrorSemantico: TableColumn<Error, Int> // variable de la columna categoria
+    lateinit var filaErrorSemantico: TableColumn<Error, Int>
     @FXML
-    lateinit var columnaErrorSemantico: TableColumn<Error, Int> // variable de la columna fila
+    lateinit var columnaErrorSemantico: TableColumn<Error, Int> 
 
     //
 
@@ -80,7 +80,7 @@ class InicioController : Initializable {
             lexico = AnalizadorLexico(codigoFuente.text)
             lexico.analizar()
             tablaTokens.items = FXCollections.observableArrayList(lexico.listaTokens)
-            //tablaErroresLexico.setItems(FXCollections.observableArrayList(lexico.listaErrores))
+            tablaErroresLexico.setItems(FXCollections.observableArrayList(lexico.listaErrores))
 
 
             sintaxis = AnalizadorSintactico6(lexico.listaTokens)
@@ -173,7 +173,7 @@ class InicioController : Initializable {
 
     @FXML
     fun traducirCodigo(e: ActionEvent) {
-        if (unidadDeCompilacion != null) {
+        if (sintaxis.listaErrores.isEmpty() && semantica.listaErrores.isEmpty()) {
             val codigo = unidadDeCompilacion!!.getJavaCode()
             File("src/Principal.java").writeText( codigo )
             val runtime = Runtime.getRuntime().exec("javac src/Principal.java")

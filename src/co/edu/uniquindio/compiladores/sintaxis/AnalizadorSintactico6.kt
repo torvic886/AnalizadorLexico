@@ -44,11 +44,13 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
      * <UnidadDeCompilacion> ::= [<ListaDeclaraciónDeVariables>] <ListaFunciones>
      */
     fun esUnidadDeCompilacion5(): UnidadDeCompilacion3? {
+        val listaConstantes: ArrayList<Constante> = esListaConstantes()
         val listDecVarInm: ArrayList<Sentencia3> = esListaDeclaracionVariable()
         val listaFunciones: ArrayList<Funcion3> = esListaFunciones()
 
-        if (listaFunciones.size > 0 || listDecVarInm.size > 0) {
-            return UnidadDeCompilacion3(listDecVarInm, listaFunciones)
+
+        if (listaFunciones.size > 0 || listDecVarInm.size > 0 || listaConstantes.size > 0) {
+            return UnidadDeCompilacion3(listDecVarInm, listaFunciones, listaConstantes)
         }
         return null
     }
@@ -67,6 +69,9 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
         return listaFunciones
     }
 
+    /**
+     * <ListaDecVariable> ::= <ListaDeVar> <ListaDecArr>
+     */
     fun esListaDeclaracionVariable(): ArrayList<Sentencia3> {
         val listaDecVar = ArrayList<Sentencia3>()
         var decVar = esVariable()
@@ -84,6 +89,17 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
         return listaDecVar
     }
 
+    fun esListaConstantes(): ArrayList<Constante> {
+        val listaConstantes = ArrayList<Constante>()
+        var constante = esConstante()
+
+        while (constante != null) {
+            listaConstantes.add(constante)
+            constante = esConstante()
+        }
+
+        return listaConstantes
+    }
     /**
      * <Función> ::= mtd [is <TipoDato>] <Identificador> “[“<ListaParámetros>”]” “-“ ”-“ ”>” [<ListaSentencias>] “<” “-“ “-”
      */
@@ -335,6 +351,10 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
         if (whereas != null) {
             return whereas
         }
+        val ciclo = esCiclo()
+        if (ciclo != null) {
+            return ciclo
+        }
 
         val arreglo = esArreglo2()
         if (arreglo != null) {
@@ -355,24 +375,22 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
         if (leer != null) {
             return leer
         }
-
-        /*
+        val obtV = esObtenerValorArreglo()
+        if (obtV != null) {
+            return obtV
+        }
         val incremento = esIncremento()
         if (incremento != null) {
             return incremento
         }
-
         val decremento = esDecremento()
         if (decremento != null) {
             return decremento
         }
-
-        val declaracionVariableInmutable = esDeclaracionDeVariableInmutable()
-        // Verifica si se trata de la declaración de una variable inmutable
-        if (declaracionVariableInmutable != null) {
-            return declaracionVariableInmutable
+        val constant = esConstante()
+        if (constant != null) {
+            return constant
         }
-*/
         return null
     }
 
@@ -405,40 +423,79 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
     }
 
     /**
-     * <SentenciaDeIncremento> ::= <ExpresiónAritmética> "+" "_"
+     * <SentenciaDeIncremento> ::= "."<ExpresiónAritmética> "+" "_"
      */
-    fun esIncremento(): SentenciaIncremento3? {
-        /*val expresionAritmetica = esExpresionAritmetica()
-        if (expresionAritmetica != null) {
-            if (tokenActual.categoria == Categoria.OPERADOR_INCREMENTO) {
-                obtenerSiguienteToken()
-                if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+    fun esIncremento(): SentenciaIncremento4? {
+        val p = posicionActual
+        if (tokenActual.categoria == Categoria.PUNTO_INICIO_SENTENCIA_INCREMENTO) {
+            obtenerSiguienteToken()
+            val expA = esExpresionAritmetica()
+            if (expA != null) {
+                if (tokenActual.categoria == Categoria.OPERADOR_INCREMENTO || tokenActual.lexema == "+") {
                     obtenerSiguienteToken()
-                    return SentenciaIncremento(expresionAritmetica)
+                    if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+                        obtenerSiguienteToken()
+                        return SentenciaIncremento4(expA)
+                    } else {
+                        reportarError("Falta especificar fin de sentencia")
+                    }
                 } else {
-                    reportarError("Es preciso que especifique el final de la sentencia incremento")
+                    if (tokenActual.categoria == Categoria.OPERADOR_DECREMENTO) {
+                        hacerBT(p)
+                    } else {
+                        reportarError("Sentencia de incremento incompleta")
+                    }
                 }
+            } else {
+                if (tokenActual.categoria == Categoria.PALABRA_RESERVADA &&  tokenActual.lexema == "obt") {
+                    hacerBT(p)
+                    return null
+                }
+                reportarError("Después de un punto debe seguir una sentencia de incremento o decr")
             }
-        }*/
+        }
         return null
     }
 
     /**
-     * <SentenciaDeDecremento> ::= <ExpresiónAritmética> "-" "_"
+     * <SentenciaDeDecremento> ::= "."<ExpresiónAritmética> "-" "_"
      */
-    fun esDecremento(): SentenciaDecremento3? {
-        /*val expresionAritmetica = esExpresionAritmetica()
-        if (expresionAritmetica != null) {
-            if (tokenActual.categoria == Categoria.OPERADOR_DECREMENTO) {
-                obtenerSiguienteToken()
-                if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+    fun esDecremento(): SentenciaDecremento4? {
+        val p = posicionActual
+        if (tokenActual.categoria == Categoria.PUNTO_INICIO_SENTENCIA_INCREMENTO) {
+            obtenerSiguienteToken()
+            val expA = esExpresionAritmetica()
+            if (expA != null) {
+                if (tokenActual.categoria == Categoria.OPERADOR_DECREMENTO || tokenActual.lexema == "-") {
                     obtenerSiguienteToken()
-                    return SentenciaDecremento(expresionAritmetica)
+                    if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+                        obtenerSiguienteToken()
+                        return SentenciaDecremento4(expA)
+                    } else {
+                        reportarError("Falta especificar fin de sentencia")
+                    }
                 } else {
-                    reportarError("Es preciso que especifique el final de la sentencia incremento")
+                    reportarError("Sentencia de decremento incompleta")
                 }
+            } else {
+                reportarError("Después de un punto debe seguir una sentencia de incr o decr")
             }
-        }*/
+        }
+        return null
+    }
+    /**
+     * <Constante> ::= const <TipoDato>":" Identificador ["@" <Expresion>] "_" | const <TipoDato>":" Identificador ["@" <InvocacionFuncion>] "_"
+     */
+    fun esConstante(): Constante? {
+        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && tokenActual.lexema == "const") {
+            obtenerSiguienteToken()
+            val variable = esVariable()
+            if (variable != null) {
+                return Constante(variable.nombre, variable.tipoDato, variable.operadorAsignacion, variable.expresion, variable.invFuncion)
+            } else {
+                reportarError("Después de la pal 'const' debe seguir un tipo de dato")
+            }
+        }
         return null
     }
 
@@ -487,8 +544,42 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
         hacerBT(posI)
         return null
     }
+    /**
+     * <ObtenerValorArr> ::= . Identificador"{"<entero>"}""_"
+     */
+    fun esObtenerValorArreglo(): SentenciaObtenerValorArreglo? {
+        val p = posicionActual
+        if (tokenActual.categoria == Categoria.PUNTO_INICIO_SENTENCIA_INCREMENTO || tokenActual.lexema == ".") {
+            obtenerSiguienteToken()
+            if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
+                val nombre = tokenActual
+                obtenerSiguienteToken()
+                if (tokenActual.categoria == Categoria.CORCHETE_ABRIR || tokenActual.lexema == "{") {
+                    obtenerSiguienteToken()
+                    if (tokenActual.categoria == Categoria.ENTERO || tokenActual.categoria == Categoria.IDENTIFICADOR) {
+                        val pos = tokenActual
+                        obtenerSiguienteToken()
+                        if (tokenActual.categoria == Categoria.CORCHETE_CERRAR || tokenActual.lexema == "}") {
+                            obtenerSiguienteToken()
+                            if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
+                                obtenerSiguienteToken()
+                                return SentenciaObtenerValorArreglo(nombre, pos)
+                            } else {
+                                reportarError("Falta fin de sentencia")
+                            }
+                        } else {
+                            reportarError("Falta especificar corchete de cerrar (})")
+                        }
+                    } else {
+                        reportarError("Debe especificar un valor entero para acceder a una pos de un arreglo")
+                    }
 
-
+                }
+            }
+            hacerBT(p)
+        }
+        return null
+    }
     /**
      * <Arreglo> ::= Conjunto is TipoDato: Identificador "@" "{" [<ListaArgumentos>] "}" "_"
      */
@@ -680,6 +771,45 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
     }
 
     /**
+     * <Cliclo> ::= ciclo Identificador ":" Identificador “-“ “-“ “>” [<ListaSentencias>]  “<” “-” “-”
+     */
+    fun esCiclo(): Ciclo? {
+        if (tokenActual.categoria == Categoria.PALABRA_RESERVADA && tokenActual.lexema == "ciclo") {
+            obtenerSiguienteToken()
+            if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
+                val id1 = tokenActual
+                obtenerSiguienteToken()
+                if (tokenActual.categoria == Categoria.DOS_PUNTOS) {
+                    obtenerSiguienteToken()
+                    if (tokenActual.categoria == Categoria.IDENTIFICADOR) {
+                        val id2 = tokenActual
+                        obtenerSiguienteToken()
+                        if (tokenActual.categoria == Categoria.LLAVE_ABRIR) {
+                            obtenerSiguienteToken()
+                            val listaSentencias = esBloqueDeSentencia()
+                            if (tokenActual.categoria == Categoria.LLAVE_CERRAR) {
+                                obtenerSiguienteToken()
+                                return Ciclo(id1, id2, listaSentencias)
+                            } else {
+                                reportarError("Falta llave de cerrar ciclo")
+                            }
+                        } else {
+                            reportarError("Falta llave abrir ciclo")
+                        }
+                    } else {
+                        reportarError("Falta especificar nombre de la lista a recorrer")
+                    }
+                } else {
+                    reportarError("Falta especificar los dos puntos para definir el ciclo")
+                }
+            } else {
+                reportarError("Falta especificar nombre del iterador")
+            }
+
+        }
+        return null
+    }
+    /**
      * <SentenciaMientras> ::= whereas “[“<Condición> “]” do “-“ “-“ “>” [<ListaSentencias>]  “<” “-” “-”
      */
     fun esWhereas(): SentenciaWhereas3? {
@@ -754,7 +884,7 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
     }
 
     /**
-     * <Variable> ::=  <TipoDatoInmutable> “:” <Identificador> [@ <Expresión>] "_"
+     * <Variable> ::= <TipoDatoInmutable> “:” Identificador [@ <InvocacionFuncion>] "_" | <TipoDatoInmutable> “:” Identificador [@ <Expresión>] "_"
      */
     fun esVariable(): Variable? {
         val posIni = posicionActual
@@ -770,16 +900,20 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
                     val operadorAsignacion = esOpAsignacion()
                     if (operadorAsignacion != null) {
                         val d = posicionActual
+                        val obtenerValorArreglo = esObtenerValorArreglo()
+                        if (obtenerValorArreglo != null) {
+                            return Variable(nombreVar, tipoDato, operadorAsignacion, null, null, obtenerValorArreglo)
+                        }
                         val invFuncion = esInvocacionDeFuncion()
                         if (invFuncion != null) {
-                            return Variable(nombreVar, tipoDato, operadorAsignacion, null, invFuncion)
+                            return Variable(nombreVar, tipoDato, operadorAsignacion, null, invFuncion, null)
                         } else {
                             val expresion = esExpresion()
                             if (expresion != null) {
                                 if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
                                     obtenerSiguienteToken()
                                     // Como todo va bien hasta acá
-                                    return Variable(nombreVar, tipoDato, operadorAsignacion, expresion, null)
+                                    return Variable(nombreVar, tipoDato, operadorAsignacion, expresion, null, null)
                                 } else {
                                     reportarError("Es preciso especificar el fin de la sentencia de exp al asignar")
                                 }
@@ -790,7 +924,7 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
                     }
                     if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
                         obtenerSiguienteToken()
-                        return Variable(nombreVar, tipoDato, null, null, null)
+                        return Variable(nombreVar, tipoDato, null, null, null, null)
                     } else {
                         reportarError("Es preciso especificar el '_' al terminar de declarar la variabl")
                     }
@@ -818,16 +952,20 @@ class AnalizadorSintactico6(var listaTokens: ArrayList<Token>) {
             obtenerSiguienteToken()
             val operadorAsignacion = esOpAsignacion()
             if (operadorAsignacion != null) {
+                val obtValorArreglo = esObtenerValorArreglo()
+                if (obtValorArreglo != null ) {
+                    return SentenciaAsignacion3(nombreVariable, operadorAsignacion, null, null, obtValorArreglo)
+                }
                 val invFuncion = esInvocacionDeFuncion()
                 if (invFuncion != null) {
-                    return SentenciaAsignacion3(nombreVariable, operadorAsignacion, null, invFuncion)
+                    return SentenciaAsignacion3(nombreVariable, operadorAsignacion, null, invFuncion, null)
                 } else {
                     val expresion = esExpresion()
                     if (expresion != null) {
                         if (tokenActual.categoria == Categoria.FIN_SENTENCIA) {
                             obtenerSiguienteToken()
                             // Como todo va bien hasta acá
-                            return SentenciaAsignacion3(nombreVariable, operadorAsignacion, expresion, null)
+                            return SentenciaAsignacion3(nombreVariable, operadorAsignacion, expresion, null, null)
                         } else {
                             reportarError("Es preciso especificar el fin de la sentencia de exp al asignar")
                         }

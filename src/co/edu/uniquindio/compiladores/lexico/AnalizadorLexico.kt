@@ -12,7 +12,7 @@ class AnalizadorLexico(var codigoFuente: String) {
     var caracterActual = codigoFuente[0]  //se captura el primer caracter de la cadena que entra por parámetro
     var listaTokens = ArrayList<Token>()  //se declara una lista para almacenar los tokens válidos
     var posicionActual = 0  // se declara una variable que va a permitir conocer la posición actual en un momento determinado
-    var listaErrores = ArrayList<Token>()  //se declara una lista para almacenar los errores identificados
+    var listaErrores = ArrayList<Error>()  //se declara una lista para almacenar los errores identificados
     var finCodigo = 0.toChar()
     var filaActual = 0
     var columnaActual = 0
@@ -33,7 +33,7 @@ class AnalizadorLexico(var codigoFuente: String) {
      * Método que permite almacenar un token previamente validado por alguna categoría, en la lista de los tokens validados
      * @param: lexema (token que se desea almacenar), categoria (categoría de ese token), fila (fila inicial), columna (col inicial)
      */
-    fun almacenarTokenErroneo(lexema: String, categoria: Categoria, fila: Int, columna: Int) = listaErrores.add(Token(lexema, categoria, fila, columna))
+    fun reportarError(mensaje: String, fila: Int, columna: Int) = listaErrores.add(Error(mensaje, fila, columna))
 
     /**
      * Método que permite almacenar un token previamente validado por alguna categoría, en la lista de los tokens validados
@@ -43,7 +43,7 @@ class AnalizadorLexico(var codigoFuente: String) {
         if (categoria != Categoria.NO_RECONOCIDO) {
             listaTokens.add(Token(lexema, categoria, fila, columna))
         } else {
-            almacenarTokenErroneo(lexema, categoria, fila, columna)
+            reportarError("Token no reconocido", fila, columna)
         }
 
     }
@@ -88,17 +88,18 @@ class AnalizadorLexico(var codigoFuente: String) {
             if (esParentesisCerrar()) continue
             if (esFinSentencia()) continue
             if (esCorcheteAbrir()) continue
+            if (esPuntoInicialIncremento()) continue
             if (esCorcheteCerrar()) continue
             if (esDosPuntos()) continue
             if (esConcatenador()) continue
 
-            if (caracterActual == ' ') {
+            if (caracterActual == ' ' || caracterActual == '\n') {
                 obtenerSiguienteCaracter()
                 while (caracterActual == ' ') {
                     obtenerSiguienteCaracter()
                 }
             } else {
-                almacenarToken(lexema = "" + caracterActual, categoria = Categoria.NO_RECONOCIDO, fila = filaActual, columna = columnaActual)
+                //almacenarToken(lexema = "" + caracterActual, categoria = Categoria.NO_RECONOCIDO, fila = filaActual, columna = columnaActual)
                 obtenerSiguienteCaracter()
             }
         }
@@ -524,7 +525,7 @@ class AnalizadorLexico(var codigoFuente: String) {
                             if (caracterActual == '|') {
                                 lexema += caracterActual
                                 obtenerSiguienteCaracter()
-                                almacenarTokenErroneo(lexema, Categoria.ERROR, filaInicial, columnaInicial)
+                                reportarError("Dentro de una cadena de caracteres no debe existir un '&' sin un T, D o S que le siga", filaInicial, columnaInicial)
                                 return true
                             }
                             lexema += caracterActual
@@ -848,7 +849,7 @@ class AnalizadorLexico(var codigoFuente: String) {
                 lexema += caracterActual
                 obtenerSiguienteCaracter()
             }
-            almacenarTokenErroneo(lexema, Categoria.ERROR, filaInicial, columnaInicial)
+            reportarError("Falta cerrar comentario de bloque", filaInicial, columnaInicial)
             return true
 
         }
@@ -1030,6 +1031,25 @@ class AnalizadorLexico(var codigoFuente: String) {
         return false
     }
 
+    /**
+     * Método que valida un punto inicial para una sentencia de incremento
+     */
+    fun esPuntoInicialIncremento(): Boolean {
+        if (caracterActual == '.') {
+            var lexema = ""
+            var filaInicial = filaActual
+            var columnaInicial = columnaActual
+            var posicionInicial = posicionActual
+
+
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+
+            almacenarToken(lexema, Categoria.PUNTO_INICIO_SENTENCIA_INCREMENTO, filaInicial, columnaInicial)
+            return true
+        }
+        return false
+    }
     /** Método que valida paréntesis de cerrar
      *
      */
@@ -1847,6 +1867,83 @@ class AnalizadorLexico(var codigoFuente: String) {
                         lexema += caracterActual
                         obtenerSiguienteCaracter()
                         if (caracterActual == 'a') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+
+
+                            if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                return true
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+        // se inician las variables desde el punto de inicio, para continual validando
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'ciclo' <--> 'for'
+        if (caracterActual == 'c') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'i') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'c') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 'l') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 'o') {
+                            lexema += caracterActual
+                            obtenerSiguienteCaracter()
+
+
+                            if (caracterActual != '#' && !caracterActual.isDigit() && !caracterActual.isLetter()) {
+                                almacenarToken(lexema, Categoria.PALABRA_RESERVADA, filaInicial, columnaInicial)
+                                return true
+                            } else {
+                                hacerBT(posicionInicial, filaInicial, columnaInicial)
+                                return false
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+        hacerBT(posicionInicial, filaInicial, columnaInicial)
+
+        lexema = ""
+        filaInicial = filaActual
+        columnaInicial = columnaActual
+        posicionInicial = posicionActual
+
+        // Verifica pal reservada 'const' <--> 'final'
+        if (caracterActual == 'c') {
+            lexema += caracterActual
+            obtenerSiguienteCaracter()
+            if (caracterActual == 'o') {
+                lexema += caracterActual
+                obtenerSiguienteCaracter()
+                if (caracterActual == 'n') {
+                    lexema += caracterActual
+                    obtenerSiguienteCaracter()
+                    if (caracterActual == 's') {
+                        lexema += caracterActual
+                        obtenerSiguienteCaracter()
+                        if (caracterActual == 't') {
                             lexema += caracterActual
                             obtenerSiguienteCaracter()
 

@@ -124,6 +124,28 @@ class Token(var lexema: String, var categoria: Categoria, var fila: Int, var col
                     "</>" -> {
                         return "/"
                     }
+                    "<%>" -> {
+                        return "%"
+                    }
+                }
+            }
+            Categoria.OPERADOR_ARITMETICO -> {
+                when (lexema) {
+                    "<*>" -> {
+                        return "*"
+                    }
+                    "</>" -> {
+                        return "/"
+                    }
+                    "<+>" -> {
+                        return "+"
+                    }
+                    "<->" -> {
+                        return "-"
+                    }
+                    "<%>" -> {
+                        return "%"
+                    }
                 }
             }
             Categoria.SEPARADOR_DE_SENTENCIA -> {

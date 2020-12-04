@@ -6,9 +6,9 @@ import co.edu.uniquindio.compiladores.semantica.Ambito
 import co.edu.uniquindio.compiladores.semantica.TablaSimbolos
 import javafx.scene.control.TreeItem
 
-class Variable(var nombre: Token, var tipoDato: Token, var operadorAsignacion: Token?, var expresion: Expresion3?, var invFuncion: SentenciaInvocacionFuncion3?, var obtValArr: SentenciaObtenerValorArreglo?) : Sentencia3() {
+class Constante(var nombre: Token, var tipoDato: Token, var operadorAsignacion: Token?, var expresion: Expresion3?, var invFuncion: SentenciaInvocacionFuncion3?) : Sentencia3() {
     override fun getArbolVisual(): TreeItem<String> {
-        var raiz = TreeItem("Declaración Variable")
+        var raiz = TreeItem("Declaración Constante")
         raiz.children.add(TreeItem("Nombre: ${nombre.lexema}"))
         raiz.children.add(TreeItem("Tipo dato:  ${tipoDato.lexema}"))
 
@@ -20,10 +20,7 @@ class Variable(var nombre: Token, var tipoDato: Token, var operadorAsignacion: T
             }
             if (invFuncion != null) {
                 raizOp.children.add(invFuncion!!.getArbolVisual())
-            } else if(obtValArr != null) {
-                raizOp.children.add(obtValArr!!.getArbolVisual())
             }
-
             raiz.children.add(raizOp)
         }
 
@@ -31,22 +28,10 @@ class Variable(var nombre: Token, var tipoDato: Token, var operadorAsignacion: T
     }
 
     override fun llenarTablaSimbolos(tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error>, ambito: Ambito) {
-        tablaSimbolos.guardarSimboloValor(nombre.lexema, tipoDato.lexema, true, ambito, nombre.fila, nombre.columna)
+        tablaSimbolos.guardarSimboloValor(nombre.lexema, tipoDato.lexema, false, ambito, nombre.fila, nombre.columna)
     }
 
     override fun analizarSemantica(tablaSimbolos: TablaSimbolos, listaErrores: ArrayList<Error>, ambito: Ambito) {
-        if (obtValArr != null) {
-            var s2 = tablaSimbolos.buscarSimboloValor(obtValArr!!.nombre!!.lexema, ambito, obtValArr!!.nombre!!.fila, obtValArr!!.nombre!!.columna)
-            if (s2 == null) {
-                listaErrores.add(Error("El campo '${obtValArr!!.nombre!!.lexema}' no existe dentro del ambito '${ambito.nombre}'", obtValArr!!.nombre.fila, obtValArr!!.nombre.columna))
-
-            } else {
-                val tipoArr = s2.tipo
-                if (tipoArr != tipoDato.lexema) {
-                    listaErrores.add(Error("Tipo de dato del campo ${nombre.lexema} que es (" + tipoDato.lexema + ") no coincide con el tipo de dato del arreglo (que es ${tipoArr})", nombre.fila, nombre.columna))
-                }
-            }
-        }
         if (expresion != null) {
             expresion!!.analizarSemantica(tablaSimbolos, listaErrores, ambito)
             val tipEx = expresion!!.obtenerTipo(tablaSimbolos, ambito, listaErrores)
@@ -77,30 +62,13 @@ class Variable(var nombre: Token, var tipoDato: Token, var operadorAsignacion: T
 
     }
 
-    override fun toString(): String {
-        return "Variable(nombre=$nombre, tipoDato=$tipoDato, operadorAsignacion=$operadorAsignacion, expresion=$expresion, invFuncion=$invFuncion)"
-    }
-
     override fun getJavaCode(): String {
-        var codigo = tipoDato.getJavaCode() + " " +  nombre.getJavaCode()
-        if (operadorAsignacion != null) {
-            codigo += operadorAsignacion!!.getJavaCode()
-            return when {
-                obtValArr != null -> {
-                    codigo += obtValArr!!.getJavaCode()
-                    codigo
-                }
-                expresion != null -> {
-                    codigo += expresion!!.getJavaCode() + ";"
-                    codigo
-                }
-                else -> {
-                    codigo += invFuncion!!.getJavaCode()
-                    codigo
-                }
-            }
+        var codigo =  "final " + tipoDato.getJavaCode() + " " + nombre.lexema + "="
+        if (expresion != null) {
+            codigo += expresion!!.getJavaCode() + ";"
+        } else if (invFuncion != null) {
+            codigo += invFuncion!!.getJavaCode()
         }
-        codigo += ";"
         return codigo
     }
 
