@@ -96,5 +96,32 @@ open class ExpresionAritmetica3():Expresion3()
         return "ExpresionAritmetica3(expArit1=$expArit1, termino=$termino, termino2=$termino2, operador=$operador)"
     }
 
+    override fun getJavaCode(): String {
+        var codigo = ""
+        when
+        {
+            termino != null && termino2 != null ->
+            {
+                codigo += termino!!.getJavaCode()
+                codigo += operador!!.getJavaCode()
+                codigo += termino2!!.getJavaCode()
+            }
+            expArit1 != null && termino !=null ->
+            {
+                codigo += "(" + expArit1!!.getJavaCode() +")"
+                codigo += operador!!.getJavaCode()
+                codigo += termino!!.getJavaCode()
+            }
+            termino != null ->
+            {
+                codigo += termino!!.getJavaCode()
+            }
+            expArit1 != null ->
+            {
+                codigo += "(" + expArit1!!.getJavaCode() +")"
+            }
+        }
+        return codigo
+    }
 
 }

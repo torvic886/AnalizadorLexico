@@ -28,4 +28,13 @@ class ExpresionRelacional3(var expresionAritmetica: ExpresionAritmetica3, var op
     override fun obtenerTipo(tablaSimbolos: TablaSimbolos, ambito: Ambito, listaErrores: ArrayList<Error>  ): String {
         return "centi"
     }
+    override fun getJavaCode(): String {
+        var codigo = ""
+        if (expresionAritmetica != null && expresionAritmetica2 != null) {
+            codigo += expresionAritmetica!!.getJavaCode()
+            codigo += operardorRel.getJavaCode()
+            codigo += expresionAritmetica2!!.getJavaCode()
+        }
+        return codigo
+    }
 }

@@ -6,7 +6,7 @@ import co.edu.uniquindio.compiladores.semantica.Ambito
 import co.edu.uniquindio.compiladores.semantica.TablaSimbolos
 import javafx.scene.control.TreeItem
 
-class SentenciaArreglo(var nombre: Token, var tipoDato: Token, var expresiones: ArrayList<Expresion3>) : Sentencia3() {
+class SentenciaArreglo(var nombre: Token, var tipoDato: Token, var expresiones: ArrayList<Expresion3>, var tamanio: Token?) : Sentencia3() {
 
     override fun getArbolVisual(): TreeItem<String> {
         var raiz = TreeItem("Arreglo")
@@ -37,5 +37,27 @@ class SentenciaArreglo(var nombre: Token, var tipoDato: Token, var expresiones: 
             }
         }
 
+    }
+
+    override fun getJavaCode(): String {
+        var codigo = tipoDato.getJavaCode() + " []" + nombre.getJavaCode() + "="
+        if (expresiones.isNotEmpty()) {
+            codigo += "{"
+            var aux = 0
+            for (e in expresiones) {
+                if (aux == 0) {
+                    codigo += e.getJavaCode()
+                    aux++
+                } else {
+                    codigo += "," + e.getJavaCode()
+                }
+            }
+            codigo += "};"
+        } else {
+            if ( tamanio!= null) {
+                codigo += "new " + tipoDato.getJavaCode() + "[" + tamanio!!.getJavaCode() + "];"
+            }
+        }
+        return codigo
     }
 }
